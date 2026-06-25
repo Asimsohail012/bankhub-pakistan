@@ -6,11 +6,15 @@ import '../models/bank_model.dart';
 class BankListTile extends StatelessWidget {
   final BankModel bank;
   final VoidCallback onTap;
+  final bool isFavorite;
+  final VoidCallback? onFavoriteTap;
 
   const BankListTile({
     super.key,
     required this.bank,
     required this.onTap,
+    this.isFavorite = false,
+    this.onFavoriteTap,
   });
 
   @override
@@ -49,7 +53,20 @@ class BankListTile extends StatelessWidget {
           ),
         ),
         subtitle: Text(bank.slogan),
-        trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 18),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (onFavoriteTap != null)
+              IconButton(
+                icon: Icon(
+                  isFavorite ? Icons.star : Icons.star_border,
+                  color: isFavorite ? Colors.amber : Colors.grey.shade500,
+                ),
+                onPressed: onFavoriteTap,
+              ),
+            const Icon(Icons.arrow_forward_ios_rounded, size: 18),
+          ],
+        ),
         onTap: onTap,
       ),
     );

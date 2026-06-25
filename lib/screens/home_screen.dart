@@ -5,6 +5,8 @@ import '../screens/banking_news_screen.dart';
 import '../screens/compare_banks_screen.dart';
 import '../screens/islamic_banking_screen.dart';
 import '../screens/feature_screen.dart';
+import '../screens/ai_assistant_screen.dart';
+import '../screens/premium_analytics_screen.dart';
 import '../utils/app_colors.dart';
 import '../widgets/pro_dashboard_card.dart';
 import '../widgets/pro_header.dart';
@@ -205,6 +207,34 @@ class _HomeScreenState extends State<HomeScreen> {
             context,
             MaterialPageRoute(
               builder: (_) => const BankingNewsScreen(),
+            ),
+          );
+        },
+      ),
+      ProDashboardCard(
+        title: 'AI Assistant',
+        subtitle: 'Ask banking questions instantly',
+        icon: Icons.smart_toy,
+        color: AppColors.indigo,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const AIAssistantScreen(),
+            ),
+          );
+        },
+      ),
+      ProDashboardCard(
+        title: 'Premium Analytics',
+        subtitle: 'Smart insights for your money',
+        icon: Icons.analytics,
+        color: AppColors.darkBlue,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const PremiumAnalyticsScreen(),
             ),
           );
         },

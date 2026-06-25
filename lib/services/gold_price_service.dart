@@ -18,6 +18,6 @@ class GoldPriceService {
       fallback: preciousMetals,
     );
 
-    return result.data;
+    return result.data ?? [];
   }
 }

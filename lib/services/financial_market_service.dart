@@ -18,6 +18,6 @@ class FinancialMarketService {
       fallback: financialIndicators,
     );
 
-    return result.data;
+    return result.data ?? [];
   }
 }

@@ -18,6 +18,6 @@ class ExchangeRateService {
       fallback: liveExchangeRates,
     );
 
-    return result.data;
+    return result.data ?? [];
   }
 }

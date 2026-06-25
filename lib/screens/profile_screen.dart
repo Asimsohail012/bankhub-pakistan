@@ -1,13 +1,16 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../widgets/section_header.dart';
 import '../widgets/pro_dashboard_card.dart';
+import 'profile_edit_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
@@ -39,7 +42,7 @@ class ProfileScreen extends StatelessWidget {
                 CircleAvatar(
                   radius: 28,
                   backgroundColor: Colors.indigo.shade50,
-                  child: const Icon(
+                  child: Icon(
                     Icons.person,
                     color: Colors.indigo,
                     size: 30,
@@ -49,15 +52,15 @@ class ProfileScreen extends StatelessWidget {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
-                        'Saima Ahmed',
-                        style: TextStyle(
+                        user?.displayName ?? 'User',
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 6),
+                      const SizedBox(height: 6),
                       Text(
                         'Premium banking customer',
                         style: TextStyle(
@@ -77,7 +80,14 @@ class ProfileScreen extends StatelessWidget {
             subtitle: 'Update your profile and security settings',
             icon: Icons.settings,
             color: const Color(0xFF3949AB),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ProfileEditScreen(user: user),
+                ),
+              );
+            },
           ),
           const SizedBox(height: 14),
           ProDashboardCard(
