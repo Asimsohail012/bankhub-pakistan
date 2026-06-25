@@ -1,0 +1,27 @@
+BankHub Pakistan
+Pakistan's Banking Gateway
+
+Theme:
+Dark Blue + Gold
+
+Dashboard:
+3 Columns
+Rounded Premium Cards
+
+Modules:
+Banks Directory
+Credit Cards (Coming Soon)
+Roshan Digital Accounts (Coming Soon)
+Islamic Banking (Coming Soon)
+Market Rates (Coming Soon)
+Banking Tools (Coming Soon)
+Careers (Coming Soon)
+Banking News (Coming Soon)
+Compare Banks (Coming Soon)
+Bankers Community (Coming Soon)
+Settings
+
+Banks Directory:
+Search Bar
+20-30 Major Pakistani Banks
+Neutral Platform
