@@ -1,212 +1,193 @@
+﻿import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter/material.dart';
+
 import '../models/bank_model.dart';
 
 class BankDetailScreen extends StatelessWidget {
   final BankModel bank;
-Future<void> openUrl(String url) async {
-  final Uri uri = Uri.parse(url);
 
-  if (await canLaunchUrl(uri)) {
-    await launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-    );
-  }
-}
   const BankDetailScreen({
     super.key,
     required this.bank,
   });
 
+  Future<void> openUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+    }
+  }
+
   Widget buildInfoTile(
-  IconData icon,
-  String title,
-  String value,
-) {
-  return Card(
-    elevation: 2,
-    margin: const EdgeInsets.symmetric(
-      vertical: 6,
-    ),
-    child: ListTile(
-      leading: Icon(
-        icon,
-        color: Colors.indigo,
+    IconData icon,
+    String title,
+    String value,
+  ) {
+    return Card(
+      elevation: 1,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
       ),
-      title: Text(title),
-      subtitle: Text(value),
-
-      trailing: const Icon(
-        Icons.open_in_new,
+      child: ListTile(
+        leading: Icon(icon, color: Colors.indigo),
+        title: Text(title),
+        subtitle: Text(value),
+        trailing: const Icon(Icons.open_in_new),
+        onTap: () async {
+          if (value.startsWith('http')) {
+            await openUrl(value);
+          } else if (title == 'Helpline' || title == 'WhatsApp Banking') {
+            await openUrl('tel:$value');
+          }
+        },
       ),
-
-      onTap: () {
-        if (value.startsWith('http')) {
-          openUrl(value);
-        }
-      },
-    ),
-  );
-}
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(bank.name),
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                borderRadius:
-                    BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(24),
                 gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                   colors: [
-                    Color(0xff0f172a),
-                    Color(0xff1e293b),
+                    Color(0xFF1E3A8A),
+                    Color(0xFF2563EB),
                   ],
                 ),
               ),
+              padding: const EdgeInsets.all(24),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
-                  const Icon(
-                    Icons.account_balance,
-                    color: Colors.white,
-                    size: 60,
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  Text(
-                    bank.name,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight:
-                          FontWeight.bold,
+                  Row(
+                    children: [
+                      Hero(
+                      tag: 'bank-logo-${bank.name}',
+                      child: Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: Colors.white..withValues(alpha: 46),
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        padding: const EdgeInsets.all(12),
+                        child: SvgPicture.asset(
+                          bank.logoAsset,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
                     ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              bank.name,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              bank.slogan,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-
-                  const SizedBox(height: 8),
-
-                  Text(
-                    bank.slogan,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                    ),
+                  const SizedBox(height: 20),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      Chip(
+                        backgroundColor: Colors.white..withValues(alpha: 46),
+                        label: const Text(
+                          'Trusted Partner',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      Chip(
+                        backgroundColor: Colors.white..withValues(alpha: 46),
+                        label: const Text(
+                          'Digital Ready',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-
+            const SizedBox(height: 24),
+            const Text(
+              'Banking Services',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            buildInfoTile(Icons.language, 'Website', bank.website),
+            buildInfoTile(Icons.computer, 'Internet Banking', bank.internetBanking),
+            buildInfoTile(Icons.phone_android, 'Mobile App', bank.mobileApp),
+            buildInfoTile(Icons.call, 'Helpline', bank.helpline),
+            buildInfoTile(Icons.sms, 'SMS Banking', bank.smsBanking),
+            buildInfoTile(Icons.chat, 'WhatsApp Banking', bank.whatsappBanking),
+            buildInfoTile(Icons.location_on, 'Branch Locator', bank.branchLocator),
+            buildInfoTile(Icons.credit_card, 'Credit Cards', bank.creditCards),
+            buildInfoTile(Icons.mosque, 'Islamic Banking', bank.islamicBanking),
             const SizedBox(height: 20),
-
-            buildInfoTile(
-              Icons.language,
-              "Website",
-              bank.website,
-            ),
-
-            buildInfoTile(
-              Icons.computer,
-              "Internet Banking",
-              bank.internetBanking,
-            ),
-
-            buildInfoTile(
-              Icons.phone_android,
-              "Mobile App",
-              bank.mobileApp,
-            ),
-
-            buildInfoTile(
-              Icons.call,
-              "Helpline",
-              bank.helpline,
-            ),
-
-            buildInfoTile(
-              Icons.sms,
-              "SMS Banking",
-              bank.smsBanking,
-            ),
-
-            buildInfoTile(
-              Icons.chat,
-              'WhatsApp Banking',
-              bank.whatsappBanking,
-            ),
-
-            buildInfoTile(
-              Icons.location_on,
-              'Branch Locator',
-              bank.branchLocator,
-            ),
-
-            buildInfoTile(
-              Icons.credit_card,
-              'Credit Cards',
-              bank.creditCards,
-            ),
-
-            buildInfoTile(
-              Icons.mosque,
-              'Islamic Banking',
-              bank.islamicBanking,
-            ),
-
-            const SizedBox(height: 20),
-
             SizedBox(
-  width: double.infinity,
-  height: 50,
-  child: ElevatedButton.icon(
-    onPressed: () {
-  openUrl(bank.openAccountUrl);
-},
-    icon: const Icon(Icons.person_add),
-    label: const Text(
-      'Open Account',
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-  ),
-),
-
-const SizedBox(height: 12),
-
-SizedBox(
-  width: double.infinity,
-  height: 50,
-  child: ElevatedButton.icon(
-    onPressed: () {
-  openUrl(bank.downloadAppUrl);
-},
-    icon: const Icon(Icons.download),
-    label: const Text(
-      'Download App',
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-  ),
-),
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => openUrl(bank.openAccountUrl),
+                icon: const Icon(Icons.person_add),
+                label: const Text('Open Account'),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => openUrl(bank.downloadAppUrl),
+                icon: const Icon(Icons.download),
+                label: const Text('Download App'),
+              ),
+            ),
+            const SizedBox(height: 24),
           ],
         ),
       ),
     );
   }
 }
+

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
+import 'screens/app_shell.dart';
+import 'utils/app_theme.dart';
 
 void main() {
   runApp(const BankHubPakistan());
@@ -13,11 +14,8 @@ class BankHubPakistan extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'BankHub Pakistan',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: Colors.indigo,
-      ),
-      home: const HomeScreen(),
+      theme: AppTheme.lightTheme,
+      home: const AppShell(),
     );
   }
 }

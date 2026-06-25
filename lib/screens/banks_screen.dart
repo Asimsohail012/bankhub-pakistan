@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 import '../data/banks_data.dart';
 import '../models/bank_model.dart';
-import 'bank_detail_screen.dart';
+import '../widgets/bank_list_tile.dart';
+import '../screens/bank_detail_screen.dart';
 
 class BanksScreen extends StatefulWidget {
   const BanksScreen({super.key});
@@ -13,36 +14,42 @@ class BanksScreen extends StatefulWidget {
 
 class _BanksScreenState extends State<BanksScreen> {
   String searchText = '';
+  String selectedCategory = 'All';
+
+  static const List<String> categories = [
+    'All',
+    'Commercial Banks',
+    'Islamic Banks',
+    'Digital Banks',
+    'Microfinance Banks',
+    'Government Banks',
+    'Specialized Banks',
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final List<BankModel> filteredBanks =
-        pakistanBanks.where((bank) {
-      return bank.name
-          .toLowerCase()
-          .contains(searchText.toLowerCase());
+    final List<BankModel> filteredBanks = pakistanBanks.where((bank) {
+      final query = searchText.toLowerCase();
+      final matchesQuery = bank.name.toLowerCase().contains(query) ||
+          bank.slogan.toLowerCase().contains(query) ||
+          bank.category.toLowerCase().contains(query);
+      final matchesCategory = selectedCategory == 'All' || bank.category == selectedCategory;
+      return matchesQuery && matchesCategory;
     }).toList();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Banks Directory",
-        ),
+        title: const Text('Banks Directory'),
+        elevation: 0,
       ),
       body: Column(
         children: [
-
-          Container(
-            padding: const EdgeInsets.all(15),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: TextField(
               decoration: InputDecoration(
-                hintText: "Search Bank...",
-                prefixIcon:
-                    const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(15),
-                ),
+                hintText: 'Search banks, slogans, or categories...',
+                prefixIcon: const Icon(Icons.search),
               ),
               onChanged: (value) {
                 setState(() {
@@ -51,77 +58,83 @@ class _BanksScreenState extends State<BanksScreen> {
               },
             ),
           ),
-
-          Expanded(
-            child: ListView.builder(
-              itemCount: filteredBanks.length,
+          SizedBox(
+            height: 56,
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              scrollDirection: Axis.horizontal,
+              itemCount: categories.length,
+              separatorBuilder: (context, index) => const SizedBox(width: 10),
               itemBuilder: (context, index) {
-
-                final bank =
-                    filteredBanks[index];
-
-                return Card(
-                  margin:
-                      const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-
-                  elevation: 4,
-
-                  shape:
-                      RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(
-                            15),
-                  ),
-
-                  child: ListTile(
-
-                    leading:
-                        CircleAvatar(
-                      backgroundColor:
-                          Colors.indigo.shade100,
-                      child: const Icon(
-                        Icons.account_balance,
-                        color: Colors.indigo,
-                      ),
-                    ),
-
-                    title: Text(
-                      bank.name,
-                      style:
-                          const TextStyle(
-                        fontWeight:
-                            FontWeight.bold,
-                      ),
-                    ),
-
-                    subtitle: Text(
-                      bank.slogan,
-                    ),
-
-                    trailing:
-                        const Icon(
-                      Icons.arrow_forward_ios,
-                    ),
-
-                    onTap: () {
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              BankDetailScreen(
-                            bank: bank,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                final category = categories[index];
+                final isSelected = selectedCategory == category;
+                return ChoiceChip(
+                  label: Text(category),
+                  selected: isSelected,
+                  selectedColor: Colors.indigo.shade100,
+                  backgroundColor: Colors.grey.shade200,
+                  onSelected: (_) {
+                    setState(() {
+                      selectedCategory = category;
+                    });
+                  },
                 );
               },
             ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                '${filteredBanks.length} banks found',
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: filteredBanks.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.search_off,
+                          size: 60,
+                          color: Colors.grey.shade400,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'No banks matched your search.',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: filteredBanks.length,
+                    separatorBuilder: (context, index) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final bank = filteredBanks[index];
+                      return BankListTile(
+                        bank: bank,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => BankDetailScreen(bank: bank),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
           ),
         ],
       ),

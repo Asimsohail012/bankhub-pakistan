@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 class DashboardCard extends StatelessWidget {
   final String title;
@@ -18,7 +18,7 @@ class DashboardCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 8,
-      shadowColor: color.withOpacity(0.3),
+      shadowColor: color..withValues(alpha: 76),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
@@ -32,7 +32,7 @@ class DashboardCard extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                color.withOpacity(0.12),
+                color..withValues(alpha: 31),
                 Colors.white,
               ],
             ),

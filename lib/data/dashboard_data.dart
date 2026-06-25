@@ -1,4 +1,4 @@
-import '../models/dashboard_item.dart';
+import '../models/dashboard_items.dart';
 
 const List<DashboardItem> dashboardItems = [
 
