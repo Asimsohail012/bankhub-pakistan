@@ -8,6 +8,15 @@ import '../screens/feature_screen.dart';
 import '../utils/app_colors.dart';
 import '../widgets/pro_dashboard_card.dart';
 import '../widgets/pro_header.dart';
+import '../widgets/section_header.dart';
+import '../widgets/exchange_rate_card.dart';
+import '../widgets/gold_price_card.dart';
+import '../widgets/banking_news_card.dart';
+import '../widgets/financial_indicator_card.dart';
+import '../data/exchange_rate_data.dart';
+import '../data/gold_data.dart';
+import '../data/news_data.dart';
+import '../data/financial_data.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -384,6 +393,31 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisSpacing: 18,
                         childAspectRatio: 0.96,
                         children: cards,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 32),
+                  const SectionHeader(
+                    title: 'Live Financial Center',
+                    subtitle: 'Real-time market snapshots for smarter financial decisions.',
+                  ),
+                  const SizedBox(height: 18),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final crossAxisCount = constraints.maxWidth < 760 ? 1 : 2;
+                      return GridView.count(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: 18,
+                        mainAxisSpacing: 18,
+                        childAspectRatio: constraints.maxWidth < 760 ? 1.02 : 1.15,
+                        children: const [
+                          ExchangeRateCard(rates: liveExchangeRates),
+                          GoldPriceCard(metals: preciousMetals),
+                          BankingNewsCard(articles: liveNewsArticles),
+                          FinancialIndicatorCard(indicators: financialIndicators),
+                        ],
                       );
                     },
                   ),
