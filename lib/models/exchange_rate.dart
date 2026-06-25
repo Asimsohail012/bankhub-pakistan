@@ -14,11 +14,13 @@ class ExchangeRate {
   });
 
   factory ExchangeRate.fromJson(Map<String, dynamic> json) {
+    final buyValue = json['buy'] ?? json['buyRate'];
+    final sellValue = json['sell'] ?? json['sellRate'];
     return ExchangeRate(
       currency: json['currency'] as String,
       code: json['code'] as String,
-      buyRate: (json['buyRate'] as num).toDouble(),
-      sellRate: (json['sellRate'] as num).toDouble(),
+      buyRate: (buyValue as num).toDouble(),
+      sellRate: (sellValue as num).toDouble(),
       change: json['change'] as String,
     );
   }
@@ -27,8 +29,8 @@ class ExchangeRate {
     return {
       'currency': currency,
       'code': code,
-      'buyRate': buyRate,
-      'sellRate': sellRate,
+      'buy': buyRate,
+      'sell': sellRate,
       'change': change,
     };
   }

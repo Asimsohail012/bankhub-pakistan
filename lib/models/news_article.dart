@@ -13,19 +13,19 @@ class NewsArticle {
 
   factory NewsArticle.fromJson(Map<String, dynamic> json) {
     return NewsArticle(
-      headline: json['headline'] as String,
-      summary: json['summary'] as String,
+      headline: json['title'] as String,
+      summary: json['description'] as String,
       source: json['source'] as String,
-      publishedAt: json['publishedAt'] as String,
+      publishedAt: json['date'] as String,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'headline': headline,
-      'summary': summary,
+      'title': headline,
+      'description': summary,
       'source': source,
-      'publishedAt': publishedAt,
+      'date': publishedAt,
     };
   }
 }

@@ -12,10 +12,12 @@ class GoldPrice {
   });
 
   factory GoldPrice.fromJson(Map<String, dynamic> json) {
+    final typeValue = json['type'] ?? json['karat'];
+    final priceValue = json['price'] ?? json['pricePer10g'];
     return GoldPrice(
       metal: json['metal'] as String,
-      karat: json['karat'] as String,
-      pricePer10g: json['pricePer10g'] as String,
+      karat: typeValue as String,
+      pricePer10g: priceValue.toString(),
       change: json['change'] as String,
     );
   }
@@ -23,8 +25,8 @@ class GoldPrice {
   Map<String, dynamic> toJson() {
     return {
       'metal': metal,
-      'karat': karat,
-      'pricePer10g': pricePer10g,
+      'type': karat,
+      'price': pricePer10g,
       'change': change,
     };
   }

@@ -13,10 +13,17 @@ import '../widgets/exchange_rate_card.dart';
 import '../widgets/gold_price_card.dart';
 import '../widgets/banking_news_card.dart';
 import '../widgets/financial_indicator_card.dart';
+import '../models/exchange_rate.dart';
+import '../models/gold_price.dart';
+import '../models/news_article.dart';
+import '../models/financial_indicator.dart';
 import '../data/exchange_rate_data.dart';
 import '../data/gold_data.dart';
 import '../data/news_data.dart';
 import '../data/financial_data.dart';
+import '../repositories/exchange_repository.dart';
+import '../repositories/news_repository.dart';
+import '../repositories/market_repository.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,6 +35,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final TextEditingController _searchController = TextEditingController();
+  final ExchangeRepository _exchangeRepository = ExchangeRepository();
+  final NewsRepository _newsRepository = NewsRepository();
+  final MarketRepository _marketRepository = MarketRepository();
+
+  late final Future<List<ExchangeRate>> _exchangeRatesFuture;
+  late final Future<List<GoldPrice>> _goldPricesFuture;
+  late final Future<List<NewsArticle>> _newsArticlesFuture;
+  late final Future<List<FinancialIndicator>> _marketIndicatorsFuture;
 
   void _openBanks(BuildContext context) {
     Navigator.push(
@@ -44,6 +59,21 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(builder: (_) => page),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _exchangeRatesFuture = _exchangeRepository.getExchangeRates();
+    _goldPricesFuture = _marketRepository.getGoldPrices();
+    _newsArticlesFuture = _newsRepository.getNewsArticles();
+    _marketIndicatorsFuture = _marketRepository.getMarketIndicators();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -412,11 +442,35 @@ class _HomeScreenState extends State<HomeScreen> {
                         crossAxisSpacing: 18,
                         mainAxisSpacing: 18,
                         childAspectRatio: constraints.maxWidth < 760 ? 1.02 : 1.15,
-                        children: const [
-                          ExchangeRateCard(rates: liveExchangeRates),
-                          GoldPriceCard(metals: preciousMetals),
-                          BankingNewsCard(articles: liveNewsArticles),
-                          FinancialIndicatorCard(indicators: financialIndicators),
+                        children: [
+                          FutureBuilder<List<ExchangeRate>>(
+                            future: _exchangeRatesFuture,
+                            builder: (context, snapshot) {
+                              final rates = snapshot.data ?? liveExchangeRates;
+                              return ExchangeRateCard(rates: rates);
+                            },
+                          ),
+                          FutureBuilder<List<GoldPrice>>(
+                            future: _goldPricesFuture,
+                            builder: (context, snapshot) {
+                              final metals = snapshot.data ?? preciousMetals;
+                              return GoldPriceCard(metals: metals);
+                            },
+                          ),
+                          FutureBuilder<List<NewsArticle>>(
+                            future: _newsArticlesFuture,
+                            builder: (context, snapshot) {
+                              final articles = snapshot.data ?? liveNewsArticles;
+                              return BankingNewsCard(articles: articles);
+                            },
+                          ),
+                          FutureBuilder<List<FinancialIndicator>>(
+                            future: _marketIndicatorsFuture,
+                            builder: (context, snapshot) {
+                              final indicators = snapshot.data ?? financialIndicators;
+                              return FinancialIndicatorCard(indicators: indicators);
+                            },
+                          ),
                         ],
                       );
                     },
