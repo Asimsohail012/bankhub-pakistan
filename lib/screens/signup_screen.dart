@@ -60,8 +60,9 @@ class _SignupScreenState extends State<SignupScreen> {
     final result = await _authService.signUpWithEmail(email, password, name);
     setState(() => _isLoading = false);
 
-    if (result.isSuccess && result.data != null) {
-      await _authRepository.createUserProfile(result.data!.uid, email, name);
+    final user = result.data;
+    if (result.isSuccess && user != null) {
+      await _authRepository.createUserProfile(user.uid, email, name);
       if (mounted) {
         Navigator.pushReplacement(
           context,

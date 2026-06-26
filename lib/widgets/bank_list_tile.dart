@@ -30,7 +30,7 @@ class BankListTile extends StatelessWidget {
           vertical: 12,
         ),
         leading: Hero(
-          tag: 'bank-logo-${bank.name}',
+          tag: 'bank-logo-${bank.id}',
           child: Container(
             width: 52,
             height: 52,

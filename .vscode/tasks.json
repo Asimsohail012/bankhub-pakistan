@@ -1,0 +1,128 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "flutter test compact",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"test",
+				"--no-pub",
+				"-r",
+				"compact"
+			]
+		},
+		{
+			"label": "flutter analyze no-pub",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"analyze",
+				"--no-pub"
+			]
+		},
+		{
+			"label": "flutter devices",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"devices"
+			]
+		},
+		{
+			"label": "flutter run chrome",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"run",
+				"-d",
+				"chrome",
+				"--no-pub"
+			],
+			"isBackground": true
+		},
+		{
+			"label": "flutter analyze no-pub",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"analyze",
+				"--no-pub"
+			]
+		},
+		{
+			"label": "flutter test compact",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"test",
+				"--no-pub",
+				"-r",
+				"compact"
+			]
+		},
+		{
+			"label": "flutter run chrome",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"run",
+				"-d",
+				"chrome",
+				"--no-pub",
+				"--web-hostname",
+				"localhost",
+				"--web-port",
+				"7357"
+			],
+			"isBackground": true
+		},
+		{
+			"label": "flutter run chrome verify",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"run",
+				"-d",
+				"chrome",
+				"--no-pub",
+				"--web-hostname",
+				"localhost",
+				"--web-port",
+				"7461"
+			],
+			"isBackground": true
+		},
+		{
+			"label": "flutter analyze no-pub",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"analyze",
+				"--no-pub"
+			]
+		},
+		{
+			"label": "flutter test compact",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"test",
+				"--no-pub",
+				"-r",
+				"compact"
+			]
+		},
+		{
+			"label": "flutter test compact v2",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"test",
+				"--no-pub",
+				"-r",
+				"compact"
+			]
+		}
+	]
+}

@@ -105,10 +105,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       ),
     );
 
-    if (confirm == true && widget.user != null) {
+    final user = widget.user;
+    if (confirm == true && user != null) {
       setState(() => _isLoading = true);
-      await _authRepository.deleteUserAccount(widget.user!.uid);
-      await widget.user!.delete();
+      await _authRepository.deleteUserAccount(user.uid);
+      await user.delete();
       if (mounted) {
         Navigator.pushReplacement(
           context,

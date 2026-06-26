@@ -1,44 +1,68 @@
 ﻿import 'package:flutter/material.dart';
 
+import 'app_colors.dart';
+
 class AppTheme {
   static ThemeData get lightTheme {
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: AppColors.secondary,
+      brightness: Brightness.light,
+      primary: AppColors.primary,
+      secondary: AppColors.secondary,
+      tertiary: AppColors.gold,
+      surface: Colors.white,
+    );
+
     return ThemeData(
       useMaterial3: true,
-      colorSchemeSeed: Colors.indigo,
+      colorScheme: colorScheme,
       brightness: Brightness.light,
-      scaffoldBackgroundColor: const Color(0xFFF4F6FA),
+      scaffoldBackgroundColor: AppColors.background,
       appBarTheme: AppBarTheme(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.indigo.shade900,
+        backgroundColor: Colors.transparent,
+        foregroundColor: AppColors.primary,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         centerTitle: false,
+        titleTextStyle: const TextStyle(
+          color: AppColors.primary,
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: Colors.white,
+        indicatorColor: AppColors.secondary.withValues(alpha: 0.12),
+        labelTextStyle: WidgetStateProperty.all(
+          const TextStyle(fontWeight: FontWeight.w600),
+        ),
       ),
       cardTheme: CardThemeData(
-        elevation: 2,
+        elevation: 0,
+        color: Colors.white,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(18),
           ),
           elevation: 0,
-          backgroundColor: Colors.indigo,
+          backgroundColor: AppColors.secondary,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(18),
           ),
-          side: BorderSide(color: Colors.indigo..withValues(alpha: 46)),
-          foregroundColor: Colors.indigo,
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          side: BorderSide(color: AppColors.secondary.withValues(alpha: 0.24)),
+          foregroundColor: AppColors.secondary,
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -49,16 +73,16 @@ class AppTheme {
           horizontal: 18,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.indigo..withValues(alpha: 89)),
+          borderRadius: BorderRadius.circular(18),
+          borderSide: BorderSide(color: AppColors.secondary.withValues(alpha: 0.36)),
         ),
         hintStyle: TextStyle(
           color: Colors.grey.shade500,

@@ -11,11 +11,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:bankhub_pakistan/main.dart';
 
 void main() {
-  testWidgets('BankHub Pakistan smoke test', (WidgetTester tester) async {
+  testWidgets('BankHub Pakistan splash smoke test', (WidgetTester tester) async {
     await tester.pumpWidget(const BankHubPakistan());
+    await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text("Pakistan's Banking Gateway"), findsOneWidget);
-    expect(find.byIcon(Icons.menu), findsOneWidget);
+    expect(find.text('BankHub Pakistan'), findsOneWidget);
+    expect(find.text("Pakistan's Smart Banking Platform"), findsOneWidget);
+    expect(find.byIcon(Icons.account_balance_rounded), findsOneWidget);
     expect(find.byType(Scaffold), findsOneWidget);
+
+    // Dispose animated/timed splash content so no pending timer blocks test completion.
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
 }

@@ -33,7 +33,7 @@ class FeaturedBankCard extends StatelessWidget {
                 Row(
                   children: [
                     Hero(
-                      tag: 'bank-logo-${bank.name}',
+                      tag: 'bank-logo-${bank.id}',
                       child: Container(
                         width: 48,
                         height: 48,

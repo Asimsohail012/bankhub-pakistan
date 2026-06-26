@@ -51,13 +51,13 @@ class _ProDashboardCardState extends State<ProDashboardCard> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    widget.color..withValues(alpha: 242),
+                    widget.color.withValues(alpha: 0.95),
                     widget.color,
                   ],
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: widget.color..withValues(alpha: 71),
+                    color: widget.color.withValues(alpha: 0.28),
                     blurRadius: 18,
                     spreadRadius: 1,
                     offset: const Offset(0, 10),
@@ -71,7 +71,7 @@ class _ProDashboardCardState extends State<ProDashboardCard> {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: Colors.white..withValues(alpha: 46),
+                      color: Colors.white.withValues(alpha: 0.18),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -93,13 +93,14 @@ class _ProDashboardCardState extends State<ProDashboardCard> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Expanded(
+                  Flexible(
+                    fit: FlexFit.loose,
                     child: Text(
                       widget.subtitle,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: Colors.white..withValues(alpha: 235),
+                        color: Colors.white.withValues(alpha: 0.92),
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
                         height: 1.4,
@@ -114,7 +115,7 @@ class _ProDashboardCardState extends State<ProDashboardCard> {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: Colors.white..withValues(alpha: 46),
+                          color: Colors.white.withValues(alpha: 0.18),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(

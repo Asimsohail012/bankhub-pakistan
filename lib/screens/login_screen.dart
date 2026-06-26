@@ -55,8 +55,8 @@ class _LoginScreenState extends State<LoginScreen> {
     final result = await _authService.signInWithGoogle();
     setState(() => _isLoading = false);
 
-    if (result.isSuccess && result.data != null) {
-      final user = result.data!;
+    final user = result.data;
+    if (result.isSuccess && user != null) {
       await _authRepository.createUserProfile(user.uid, user.email ?? '', user.displayName ?? 'User');
       if (mounted) Navigator.pop(context);
     } else {
@@ -73,8 +73,8 @@ class _LoginScreenState extends State<LoginScreen> {
     final result = await _authService.signInWithApple();
     setState(() => _isLoading = false);
 
-    if (result.isSuccess && result.data != null) {
-      final user = result.data!;
+    final user = result.data;
+    if (result.isSuccess && user != null) {
       await _authRepository.createUserProfile(user.uid, user.email ?? '', user.displayName ?? 'User');
       if (mounted) Navigator.pop(context);
     } else {

@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../data/ai_insights_data.dart';
 import '../models/ai_insight.dart';
 import '../widgets/section_header.dart';
+import '../widgets/premium_unlock_sheet.dart';
 
 class PremiumAnalyticsScreen extends StatelessWidget {
   const PremiumAnalyticsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    if (FirebaseAuth.instance.currentUser == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          showPremiumUnlockSheet(context);
+        }
+      });
+    }
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Premium Analytics'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('Premium Analytics'), elevation: 0),
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        padding: const EdgeInsets.all(16),
         children: [
           const SectionHeader(
             title: 'Premium Analytics',
@@ -25,41 +31,36 @@ class PremiumAnalyticsScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(22),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 18,
-                  offset: const Offset(0, 10),
-                ),
-              ],
+              borderRadius: BorderRadius.circular(28),
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF0F1729), Color(0xFF2563EB)],
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
-                Text(
-                  'Insights overview',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                Text('Insights overview', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
                 SizedBox(height: 12),
-                Text(
-                  'Track performance across savings, rewards, banking products, and currency outlook.',
-                  style: TextStyle(fontSize: 14, color: Colors.black87, height: 1.5),
-                ),
+                Text('Track performance across savings, rewards, banking products, and currency outlook.', style: TextStyle(fontSize: 14, color: Colors.white70, height: 1.5)),
               ],
             ),
           ),
           const SizedBox(height: 20),
-          Wrap(
-            spacing: 16,
-            runSpacing: 16,
-            children: aiInsights.map((insight) {
-              return SizedBox(
-                width: MediaQuery.of(context).size.width / (MediaQuery.of(context).size.width < 760 ? 1 : 2) - 24,
-                child: _AnalyticsCard(insight: insight),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final crossAxisCount = constraints.maxWidth < 720 ? 1 : 2;
+              return GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 1.25,
+                children: aiInsights.map((insight) => _AnalyticsCard(insight: insight)).toList(),
               );
-            }).toList(),
+            },
           ),
           const SizedBox(height: 24),
           const Text(
@@ -95,12 +96,12 @@ class _AnalyticsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 12,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(28),
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -163,7 +164,7 @@ class _PulseTile extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),

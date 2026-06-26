@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../widgets/section_header.dart';
 import '../widgets/pro_dashboard_card.dart';
 import 'profile_edit_screen.dart';
+import '../widgets/premium_unlock_sheet.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -11,41 +12,49 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          showPremiumUnlockSheet(context);
+        }
+      });
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
         elevation: 0,
       ),
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        padding: const EdgeInsets.all(16),
         children: [
           const SectionHeader(
-            title: 'Your Profile',
+            title: 'Premium Profile',
             subtitle: 'Manage your account, notifications, and preferences.',
           ),
           const SizedBox(height: 20),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey..withValues(alpha: 31),
-                  blurRadius: 18,
-                  offset: const Offset(0, 8),
-                ),
-              ],
+              borderRadius: BorderRadius.circular(28),
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF0F1729), Color(0xFF2563EB)],
+              ),
             ),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 28,
-                  backgroundColor: Colors.indigo.shade50,
+                Container(
+                  width: 74,
+                  height: 74,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(24),
+                  ),
                   child: Icon(
-                    Icons.person,
-                    color: Colors.indigo,
-                    size: 30,
+                    user == null ? Icons.person_outline_rounded : Icons.verified_user_rounded,
+                    color: Colors.white,
+                    size: 38,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -56,17 +65,15 @@ class ProfileScreen extends StatelessWidget {
                       Text(
                         user?.displayName ?? 'User',
                         style: const TextStyle(
+                          color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Premium banking customer',
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 14,
-                        ),
+                        user == null ? 'Guest Mode' : 'Premium banking customer',
+                        style: const TextStyle(color: Colors.white70, fontSize: 14),
                       ),
                     ],
                   ),
@@ -75,12 +82,26 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: const [
+              _StatsCard(title: 'Favorites', value: '0'),
+              _StatsCard(title: 'Sync', value: 'Guest'),
+              _StatsCard(title: 'Alerts', value: '0'),
+            ],
+          ),
+          const SizedBox(height: 20),
           ProDashboardCard(
             title: 'Account Settings',
             subtitle: 'Update your profile and security settings',
             icon: Icons.settings,
             color: const Color(0xFF3949AB),
             onTap: () {
+              if (user == null) {
+                showPremiumUnlockSheet(context);
+                return;
+              }
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -95,7 +116,7 @@ class ProfileScreen extends StatelessWidget {
             subtitle: 'Manage alerts and app notifications',
             icon: Icons.notifications,
             color: const Color(0xFF0D6EFD),
-            onTap: () {},
+            onTap: () => showPremiumUnlockSheet(context),
           ),
           const SizedBox(height: 14),
           ProDashboardCard(
@@ -103,8 +124,42 @@ class ProfileScreen extends StatelessWidget {
             subtitle: 'Protect your account with stronger security',
             icon: Icons.lock,
             color: const Color(0xFF7B2EFF),
-            onTap: () {},
+            onTap: () => showPremiumUnlockSheet(context),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatsCard extends StatelessWidget {
+  final String title;
+  final String value;
+
+  const _StatsCard({required this.title, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 102,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 14,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 4),
+          Text(title, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
         ],
       ),
     );

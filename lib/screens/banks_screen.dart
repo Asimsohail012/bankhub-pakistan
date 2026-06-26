@@ -5,6 +5,8 @@ import '../models/bank_model.dart';
 import '../screens/bank_detail_screen.dart';
 import '../services/bank_persistence_service.dart';
 import '../widgets/bank_list_tile.dart';
+import '../widgets/premium_unlock_sheet.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class BanksScreen extends StatefulWidget {
   const BanksScreen({super.key});
@@ -46,6 +48,10 @@ class _BanksScreenState extends State<BanksScreen> {
   }
 
   Future<void> _toggleFavorite(String bankId) async {
+    if (FirebaseAuth.instance.currentUser == null) {
+      await showPremiumUnlockSheet(context);
+      return;
+    }
     await BankPersistenceService.toggleFavorite(bankId);
     await _loadPersistence();
   }
@@ -119,6 +125,10 @@ class _BanksScreenState extends State<BanksScreen> {
                   selectedColor: Colors.indigo.shade100,
                   backgroundColor: Colors.grey.shade200,
                   onSelected: (_) {
+                    if (FirebaseAuth.instance.currentUser == null) {
+                      showPremiumUnlockSheet(context);
+                      return;
+                    }
                     setState(() {
                       showFavoritesOnly = true;
                     });

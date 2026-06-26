@@ -4,6 +4,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../models/bank_model.dart';
 import '../services/bank_persistence_service.dart';
+import '../widgets/premium_unlock_sheet.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class BankDetailScreen extends StatefulWidget {
   final BankModel bank;
@@ -35,6 +37,10 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
   }
 
   Future<void> _toggleFavorite() async {
+    if (FirebaseAuth.instance.currentUser == null) {
+      await showPremiumUnlockSheet(context);
+      return;
+    }
     await BankPersistenceService.toggleFavorite(widget.bank.id);
     await _loadFavorite();
   }
@@ -170,7 +176,7 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                   Row(
                     children: [
                       Hero(
-                        tag: 'bank-logo-${bank.name}',
+                        tag: 'bank-logo-${bank.id}',
                         child: Container(
                           width: 60,
                           height: 60,
@@ -207,7 +213,9 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                               ),
                             ),
                             const SizedBox(height: 10),
-                            Row(
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
                               children: [
                                 Chip(
                                   backgroundColor: Colors.white..withValues(alpha: 46),
@@ -216,7 +224,6 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
                                     style: const TextStyle(color: Colors.white),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
                                 Chip(
                                   backgroundColor: Colors.white..withValues(alpha: 46),
                                   label: Text(
