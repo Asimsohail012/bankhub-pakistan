@@ -6,6 +6,7 @@ import 'bank_holidays_service.dart';
 import 'bank_circulars_service.dart';
 import 'bank_jobs_service.dart';
 import 'financial_calendar_service.dart';
+import 'banking_alerts_service.dart';
 import 'live_data_result.dart';
 
 /// Coordinate refresh operations for all live data services.
@@ -22,6 +23,7 @@ class SyncManager {
   final BankCircularsService _bankCircularsService;
   final BankJobsService _bankJobsService;
   final FinancialCalendarService _financialCalendarService;
+  final BankingAlertsService _bankingAlertsService;
 
   /// Tracks the timestamp of the last full sync.
   DateTime? _lastFullSyncTime;
@@ -35,6 +37,7 @@ class SyncManager {
     BankCircularsService? bankCircularsService,
     BankJobsService? bankJobsService,
     FinancialCalendarService? financialCalendarService,
+    BankingAlertsService? bankingAlertsService,
   })  : _exchangeRateService =
             exchangeRateService ?? ExchangeRateServiceImpl(),
         _goldPriceService = goldPriceService ?? GoldPriceServiceImpl(),
@@ -48,7 +51,9 @@ class SyncManager {
         _bankJobsService = bankJobsService ?? BankJobsServiceImpl(),
         _financialCalendarService =
             financialCalendarService ??
-                FinancialCalendarServiceImpl();
+                FinancialCalendarServiceImpl(),
+        _bankingAlertsService =
+            bankingAlertsService ?? BankingAlertsServiceImpl();
 
   /// Refreshes all live data services.
   ///
@@ -66,6 +71,7 @@ class SyncManager {
       refreshJobs(),
       refreshHolidays(),
       refreshFinancialCalendar(),
+      refreshAlerts(),
     ]);
 
     return results.every((result) => !result.hasError);
@@ -162,6 +168,18 @@ class SyncManager {
     } catch (e) {
       return LiveDataResult.error(
         message: 'Failed to refresh financial calendar: ${e.toString()}',
+        source: 'sync_manager',
+      );
+    }
+  }
+
+  /// Refreshes banking alerts data.
+  Future<LiveDataResult> refreshAlerts() async {
+    try {
+      return await _bankingAlertsService.refresh();
+    } catch (e) {
+      return LiveDataResult.error(
+        message: 'Failed to refresh banking alerts: ${e.toString()}',
         source: 'sync_manager',
       );
     }

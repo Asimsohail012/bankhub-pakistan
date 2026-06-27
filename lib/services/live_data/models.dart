@@ -137,3 +137,30 @@ class FinancialCalendarEvent {
     this.description,
   });
 }
+
+/// Banking alert or notification.
+class BankingAlert {
+  final String id;
+  final String title;
+  final String message;
+  final String type; // Warning, Info, Error, Important, Maintenance
+  final String severity; // Critical, High, Medium, Low
+  final String sourceBank; // Bank name or 'SBP' or 'System'
+  final String issuedDate;
+  final String? expiryDate;
+  final bool read;
+  final String? action; // URL or action to take
+
+  const BankingAlert({
+    required this.id,
+    required this.title,
+    required this.message,
+    required this.type,
+    required this.severity,
+    required this.sourceBank,
+    required this.issuedDate,
+    this.expiryDate,
+    required this.read,
+    this.action,
+  });
+}
