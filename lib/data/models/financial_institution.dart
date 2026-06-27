@@ -269,6 +269,42 @@ class FinancialInstitution {
   final String? merchantServicesUrl;
 
   // ============================================================================
+  // OFFICIAL INSTITUTION DATA (Phase 6 CP2)
+  // ============================================================================
+
+  /// City where the institution's headquarters or main office is located.
+  /// Null if not available or not applicable.
+  final String? city;
+
+  /// Province or state where the institution's headquarters is located.
+  /// Null if not available or not applicable.
+  final String? province;
+
+  /// Country where the institution is headquartered or registered.
+  /// Null if not available or not applicable.
+  final String? country;
+
+  /// URL to the official mobile banking application.
+  /// Links to iOS App Store or Google Play Store listings.
+  /// Null if no mobile app is available or URL not available.
+  final String? officialMobileAppUrl;
+
+  /// List of languages supported by the institution's digital banking services.
+  /// Examples: 'English', 'Urdu', 'Sindhi', 'Pashto'
+  /// Null if information not available.
+  final List<String>? availableLanguages;
+
+  /// Whether the institution offers digital wallet or e-money services.
+  /// Note: Different from being a digital wallet provider (institutionType).
+  /// Null if information not available.
+  final bool? walletSupport;
+
+  /// List of countries where the institution has branches, subsidiaries, or operations.
+  /// Examples: 'United States', 'United Arab Emirates', 'United Kingdom'
+  /// Null if not applicable or information not available.
+  final List<String>? internationalPresence;
+
+  // ============================================================================
   // FUTURE SBP DATA INTEGRATION (Phase 6+)
   // ============================================================================
 
@@ -440,6 +476,14 @@ class FinancialInstitution {
     this.agriculturalFinanceOffered,
     this.paymentGatewayUrl,
     this.merchantServicesUrl,
+    // Official institution data (Phase 6 CP2)
+    this.city,
+    this.province,
+    this.country,
+    this.officialMobileAppUrl,
+    this.availableLanguages,
+    this.walletSupport,
+    this.internationalPresence,
     // Future SBP integration (Phase 6+)
     this.sbpReferenceId,
     this.officialCategoryCode,
@@ -531,6 +575,14 @@ class FinancialInstitution {
     bool? agriculturalFinanceOffered,
     String? paymentGatewayUrl,
     String? merchantServicesUrl,
+    // Official institution data (Phase 6 CP2)
+    String? city,
+    String? province,
+    String? country,
+    String? officialMobileAppUrl,
+    List<String>? availableLanguages,
+    bool? walletSupport,
+    List<String>? internationalPresence,
     // Future SBP integration (Phase 6+)
     String? sbpReferenceId,
     String? officialCategoryCode,
@@ -620,6 +672,14 @@ class FinancialInstitution {
       agriculturalFinanceOffered: agriculturalFinanceOffered ?? this.agriculturalFinanceOffered,
       paymentGatewayUrl: paymentGatewayUrl ?? this.paymentGatewayUrl,
       merchantServicesUrl: merchantServicesUrl ?? this.merchantServicesUrl,
+      // Official institution data (Phase 6 CP2)
+      city: city ?? this.city,
+      province: province ?? this.province,
+      country: country ?? this.country,
+      officialMobileAppUrl: officialMobileAppUrl ?? this.officialMobileAppUrl,
+      availableLanguages: availableLanguages ?? this.availableLanguages,
+      walletSupport: walletSupport ?? this.walletSupport,
+      internationalPresence: internationalPresence ?? this.internationalPresence,
       // Future SBP integration (Phase 6+)
       sbpReferenceId: sbpReferenceId ?? this.sbpReferenceId,
       officialCategoryCode: officialCategoryCode ?? this.officialCategoryCode,
@@ -713,6 +773,14 @@ class FinancialInstitution {
       'agriculturalFinanceOffered': agriculturalFinanceOffered,
       'paymentGatewayUrl': paymentGatewayUrl,
       'merchantServicesUrl': merchantServicesUrl,
+      // Official institution data (Phase 6 CP2)
+      'city': city,
+      'province': province,
+      'country': country,
+      'officialMobileAppUrl': officialMobileAppUrl,
+      'availableLanguages': availableLanguages,
+      'walletSupport': walletSupport,
+      'internationalPresence': internationalPresence,
       // Future SBP integration (Phase 6+)
       'sbpReferenceId': sbpReferenceId,
       'officialCategoryCode': officialCategoryCode,
@@ -808,6 +876,14 @@ class FinancialInstitution {
       agriculturalFinanceOffered: json['agriculturalFinanceOffered'] as bool?,
       paymentGatewayUrl: json['paymentGatewayUrl'] as String?,
       merchantServicesUrl: json['merchantServicesUrl'] as String?,
+      // Official institution data (Phase 6 CP2)
+      city: json['city'] as String?,
+      province: json['province'] as String?,
+      country: json['country'] as String?,
+      officialMobileAppUrl: json['officialMobileAppUrl'] as String?,
+      availableLanguages: (json['availableLanguages'] as List<dynamic>?)?.cast<String>(),
+      walletSupport: json['walletSupport'] as bool?,
+      internationalPresence: (json['internationalPresence'] as List<dynamic>?)?.cast<String>(),
       // Future SBP integration (Phase 6+)
       sbpReferenceId: json['sbpReferenceId'] as String?,
       officialCategoryCode: json['officialCategoryCode'] as String?,
