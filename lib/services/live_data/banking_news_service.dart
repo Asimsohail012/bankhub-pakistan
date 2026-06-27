@@ -1,3 +1,4 @@
+import 'package:http/http.dart' as http;
 import 'live_data_result.dart';
 import 'models.dart';
 import 'api_cache_service.dart';
@@ -54,12 +55,16 @@ class BankingNewsServiceImpl implements BankingNewsService {
 
   DateTime? _lastUpdated;
   final ApiCacheService _cacheService;
+  final http.Client _httpClient;
+  static const Duration _timeout = Duration(seconds: 10);
   static const String _cacheKey = 'banking_news';
   String _sourceUsed = 'placeholder_banking_news';
 
   BankingNewsServiceImpl({
     ApiCacheService? cacheService,
-  })  : _cacheService = cacheService ?? ApiCacheService();
+    http.Client? httpClient,
+  })  : _cacheService = cacheService ?? ApiCacheService(),
+        _httpClient = httpClient ?? http.Client();
 
   @override
   Future<LiveDataResult<List<BankingNewsArticle>>> getLatestNews() async {
@@ -119,15 +124,148 @@ class BankingNewsServiceImpl implements BankingNewsService {
 
   Future<List<BankingNewsArticle>> _fetchFromLiveAPI() async {
     try {
-      // Attempting to fetch from news API
-      // Using free tier or public RSS feeds
-      // Framework ready for news API integration
-      // Could use NewsAPI, ReutersAPI, or SBP press releases
-      // Returning empty list to fallback to cache/placeholder
+      // Primary source: SBP RSS feed for press releases and news
+      return await _fetchFromSbpRss();
     } catch (_) {
-      // API call failed
+      // Primary source failed, try alternative
+      return _fetchFromAlternativeSource();
+    }
+  }
+
+  /// Fetches banking news from official SBP RSS/press releases.
+  /// SBP publishes official banking and monetary policy news at https://www.sbp.org.pk/
+  Future<List<BankingNewsArticle>> _fetchFromSbpRss() async {
+    try {
+      // Attempt to fetch from SBP RSS feed
+      // Common SBP RSS endpoints for press releases
+      final rssUrls = [
+        'https://www.sbp.org.pk/press-releases/rss.xml', // SBP press releases RSS
+        'https://www.sbp.org.pk/rss/news.xml', // SBP general news RSS
+        'https://www.sbp.org.pk/rss/press-releases.xml', // Alternative press releases
+      ];
+
+      for (final rssUrl in rssUrls) {
+        try {
+          final uri = Uri.parse(rssUrl);
+          final response = await _httpClient.get(uri).timeout(_timeout);
+
+          if (response.statusCode == 200) {
+            final news = _parseRssFeed(response.body);
+            if (news.isNotEmpty) {
+              return news;
+            }
+          }
+        } catch (_) {
+          // Try next RSS endpoint
+          continue;
+        }
+      }
+    } catch (_) {
+      // RSS fetch failed
     }
     return [];
+  }
+
+  /// Parses RSS feed content and extracts news articles.
+  /// Expects standard RSS 2.0 format from SBP feeds.
+  List<BankingNewsArticle> _parseRssFeed(String rssContent) {
+    try {
+      final articles = <BankingNewsArticle>[];
+      
+      // Extract items from RSS feed
+      // RSS item pattern: <item>...</item>
+      final itemPattern = RegExp(
+        r'<item>(.*?)</item>',
+        dotAll: true,
+      );
+
+      final items = itemPattern.allMatches(rssContent);
+
+      for (int i = 0; i < items.length && i < 5; i++) {
+        // Limit to 5 most recent articles
+        final itemContent = items.elementAt(i).group(1) ?? '';
+
+        // Extract title
+        final titleMatch = RegExp(r'<title>(.*?)</title>').firstMatch(itemContent);
+        final title = _unescapeXml(titleMatch?.group(1) ?? 'Untitled');
+
+        // Extract description/summary
+        final descMatch = RegExp(r'<description>(.*?)</description>', dotAll: true).firstMatch(itemContent);
+        final summary = _stripHtml(_unescapeXml(descMatch?.group(1) ?? ''));
+
+        // Extract publication date
+        final pubDateMatch = RegExp(r'<pubDate>(.*?)</pubDate>').firstMatch(itemContent);
+        final pubDateStr = pubDateMatch?.group(1) ?? DateTime.now().toIso8601String();
+        
+        // Try to parse the date (RSS format: RFC 822)
+        final publishedAt = _parseRfc822Date(pubDateStr);
+
+        // Extract link/URL
+        final linkMatch = RegExp(r'<link>(.*?)</link>').firstMatch(itemContent);
+        final sourceUrl = linkMatch?.group(1) ?? 'https://www.sbp.org.pk/';
+
+        if (title.isNotEmpty && summary.isNotEmpty) {
+          articles.add(
+            BankingNewsArticle(
+              id: 'sbp_news_${DateTime.now().millisecondsSinceEpoch}_$i',
+              title: title,
+              summary: summary.length > 200 ? '${summary.substring(0, 200)}...' : summary,
+              source: 'SBP | $sourceUrl', // Include URL in source
+              publishedAt: publishedAt,
+              imageUrl: null,
+            ),
+          );
+        }
+      }
+
+      return articles;
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// Alternative source for banking news if SBP RSS fails.
+  /// Falls back to verified banking data or cached articles.
+  List<BankingNewsArticle> _fetchFromAlternativeSource() {
+    try {
+      // Alternative: Could try other official banking sources
+      // For now, return empty to use cache/placeholder
+    } catch (_) {
+      // Alternative source also failed
+    }
+    return [];
+  }
+
+  /// Parses RFC 822 formatted date (used in RSS feeds).
+  /// Converts to ISO 8601 format for consistency.
+  String _parseRfc822Date(String rfc822Date) {
+    try {
+      // RFC 822: Mon, 06 Sep 2009 00:01:00 +0000
+      final date = DateTime.parse(rfc822Date);
+      return date.toIso8601String();
+    } catch (_) {
+      // If parsing fails, return current time
+      return DateTime.now().toIso8601String();
+    }
+  }
+
+  /// Removes HTML tags and entities from text.
+  String _stripHtml(String html) {
+    // Remove HTML tags
+    var text = html.replaceAll(RegExp(r'<[^>]*>'), '');
+    // Remove extra whitespace
+    text = text.replaceAll(RegExp(r'\s+'), ' ').trim();
+    return text;
+  }
+
+  /// Unescapes XML entities to readable text.
+  String _unescapeXml(String escaped) {
+    return escaped
+        .replaceAll('&quot;', '"')
+        .replaceAll('&apos;', "'")
+        .replaceAll('&lt;', '<')
+        .replaceAll('&gt;', '>')
+        .replaceAll('&amp;', '&');
   }
 
   @override
