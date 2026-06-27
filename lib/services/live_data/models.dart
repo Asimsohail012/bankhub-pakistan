@@ -164,3 +164,114 @@ class BankingAlert {
     this.action,
   });
 }
+
+/// State Bank of Pakistan Monetary Policy Rate data
+class MonetaryPolicyRateData {
+  final double rate; // Current MPR
+  final double? previous; // Previous rate
+  final double? change; // Change from previous
+  final String effectiveDate; // When rate takes effect
+  final String? announcedDate; // When rate was announced
+  final String? nextReviewDate; // When next rate decision
+  final String? policyStatement; // URL or brief of policy
+  final String lastUpdated;
+
+  const MonetaryPolicyRateData({
+    required this.rate,
+    this.previous,
+    this.change,
+    required this.effectiveDate,
+    this.announcedDate,
+    this.nextReviewDate,
+    this.policyStatement,
+    required this.lastUpdated,
+  });
+}
+
+/// Graduate program/scheme information from banks and financial institutions.
+class GraduateProgram {
+  final String id;
+  final String title;
+  final String bank;
+  final String description;
+  final String? duration; // e.g., "2 years"
+  final String? salary;
+  final List<String>? eligibility; // List of eligibility criteria
+  final String postedDate;
+  final String? deadline;
+  final String? applyUrl; // Link to apply
+
+  const GraduateProgram({
+    required this.id,
+    required this.title,
+    required this.bank,
+    required this.description,
+    this.duration,
+    this.salary,
+    this.eligibility,
+    required this.postedDate,
+    this.deadline,
+    this.applyUrl,
+  });
+}
+
+/// Internship program information from banks.
+class InternshipProgram {
+  final String id;
+  final String title;
+  final String bank;
+  final String description;
+  final String duration; // e.g., "3 months", "6 months"
+  final String? stipend; // Optional stipend
+  final List<String>? requirements; // List of requirements
+  final String? department; // Target department
+  final String postedDate;
+  final String? deadline;
+  final String? applyUrl; // Link to apply
+
+  const InternshipProgram({
+    required this.id,
+    required this.title,
+    required this.bank,
+    required this.description,
+    required this.duration,
+    this.stipend,
+    this.requirements,
+    this.department,
+    required this.postedDate,
+    this.deadline,
+    this.applyUrl,
+  });
+}
+
+/// Money Transfer Organization (MTO) information and services.
+class MoneyTransferOrganization {
+  final String id;
+  final String name;
+  final String? logo;
+  final String? website;
+  final List<String> countries; // List of countries supported
+  final String? minAmount;
+  final String? maxAmount;
+  final String? fee;
+  final String? exchangeRate;
+  final String? transferTime; // e.g., "Within 1 hour", "1-2 business days"
+  final String? registeredWith; // e.g., "State Bank of Pakistan"
+  final String lastUpdated;
+
+  const MoneyTransferOrganization({
+    required this.id,
+    required this.name,
+    this.logo,
+    this.website,
+    required this.countries,
+    this.minAmount,
+    this.maxAmount,
+    this.fee,
+    this.exchangeRate,
+    this.transferTime,
+    this.registeredWith,
+    required this.lastUpdated,
+  });
+}
+

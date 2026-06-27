@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 import 'live_data_result.dart';
 import 'models.dart';
 import 'api_cache_service.dart';
+import 'metadata.dart';
 
 /// Abstract interface for banking news service.
 abstract class BankingNewsService {
@@ -19,6 +20,9 @@ abstract class BankingNewsService {
 
   /// Returns the data source identifier.
   String getSource();
+
+  /// Returns metadata about the data source.
+  DataSourceMetadata? getMetadata();
 }
 
 /// Concrete implementation of BankingNewsService.
@@ -54,17 +58,54 @@ class BankingNewsServiceImpl implements BankingNewsService {
   ];
 
   DateTime? _lastUpdated;
+  DateTime? _lastVerifiedDate;
   final ApiCacheService _cacheService;
   final http.Client _httpClient;
   static const Duration _timeout = Duration(seconds: 10);
   static const String _cacheKey = 'banking_news';
   String _sourceUsed = 'placeholder_banking_news';
 
+  late DataSourceMetadata _metadata;
+
   BankingNewsServiceImpl({
     ApiCacheService? cacheService,
     http.Client? httpClient,
   })  : _cacheService = cacheService ?? ApiCacheService(),
-        _httpClient = httpClient ?? http.Client();
+        _httpClient = httpClient ?? http.Client() {
+    _initializeMetadata();
+  }
+
+  void _initializeMetadata() {
+    _metadata = DataSourceMetadata(
+      sourceName: 'SBP & Banking News RSS',
+      sourceUrl: 'https://www.sbp.org.pk/press-releases/',
+      retrievedDate: DateTime.now(),
+      lastVerifiedDate: _lastVerifiedDate ?? DateTime.now(),
+      verificationStatus: VerificationStatus.verified,
+      isCached: false,
+      lastUpdatedTimestamp: _lastUpdated ?? DateTime.now(),
+      cacheDuration: const Duration(hours: 2),
+      notes: 'Banking news from official SBP press releases and verified banking sources.',
+    );
+  }
+
+  void _updateMetadata() {
+    _metadata = DataSourceMetadata(
+      sourceName: _sourceUsed.startsWith('live') ? 'SBP & Banking News RSS' : 'Cached Banking News',
+      sourceUrl: 'https://www.sbp.org.pk/press-releases/',
+      retrievedDate: DateTime.now(),
+      lastVerifiedDate: _lastVerifiedDate ?? DateTime.now(),
+      verificationStatus: _sourceUsed.startsWith('placeholder')
+          ? VerificationStatus.placeholder
+          : _sourceUsed.startsWith('cache')
+              ? VerificationStatus.cached
+              : VerificationStatus.verified,
+      isCached: _sourceUsed.contains('cache'),
+      lastUpdatedTimestamp: _lastUpdated ?? DateTime.now(),
+      cacheDuration: const Duration(hours: 2),
+      notes: 'Banking news from official SBP press releases and verified banking sources.',
+    );
+  }
 
   @override
   Future<LiveDataResult<List<BankingNewsArticle>>> getLatestNews() async {
@@ -74,6 +115,7 @@ class BankingNewsServiceImpl implements BankingNewsService {
       if (cached != null && cached is List<BankingNewsArticle>) {
         _lastUpdated = _cacheService.getCacheTimestamp(_cacheKey);
         _sourceUsed = 'cache_banking_news';
+        _updateMetadata();
         return LiveDataResult.cached(
           data: cached,
           source: _sourceUsed,
@@ -85,8 +127,10 @@ class BankingNewsServiceImpl implements BankingNewsService {
       final news = await _fetchFromLiveAPI();
       if (news.isNotEmpty) {
         _lastUpdated = DateTime.now();
+        _lastVerifiedDate = DateTime.now();
         _sourceUsed = 'live_banking_news_api';
         _cacheService.cache(_cacheKey, news);
+        _updateMetadata();
         return LiveDataResult.success(
           data: news,
           source: _sourceUsed,
@@ -103,6 +147,7 @@ class BankingNewsServiceImpl implements BankingNewsService {
       if (cachedFallback != null && cachedFallback is List<BankingNewsArticle>) {
         _lastUpdated = _cacheService.getCacheTimestamp(_cacheKey);
         _sourceUsed = 'cache_banking_news_fallback';
+        _updateMetadata();
         return LiveDataResult.cached(
           data: cachedFallback,
           source: _sourceUsed,
@@ -114,6 +159,7 @@ class BankingNewsServiceImpl implements BankingNewsService {
     // Ultimate fallback to placeholder data
     _lastUpdated = DateTime.now();
     _sourceUsed = 'placeholder_banking_news';
+    _updateMetadata();
     _cacheService.cache(_cacheKey, _placeholderData);
     return LiveDataResult.success(
       data: _placeholderData,
@@ -295,12 +341,17 @@ class BankingNewsServiceImpl implements BankingNewsService {
   }
 
   @override
-  Future<LiveDataResult<List<BankingNewsArticle>>> refresh() =>
-      getLatestNews();
+  Future<LiveDataResult<List<BankingNewsArticle>>> refresh() async {
+    _cacheService.invalidate(_cacheKey);
+    return getLatestNews();
+  }
 
   @override
   DateTime? getLastUpdated() => _lastUpdated;
 
   @override
   String getSource() => _sourceUsed;
+
+  @override
+  DataSourceMetadata? getMetadata() => _metadata;
 }

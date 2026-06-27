@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 import 'live_data_result.dart';
 import 'models.dart';
 import 'api_cache_service.dart';
+import 'metadata.dart';
 
 /// Abstract interface for KIBOR (Karachi Interbank Offered Rate) service.
 abstract class KiborService {
@@ -19,6 +20,9 @@ abstract class KiborService {
 
   /// Returns the data source identifier.
   String getSource();
+
+  /// Returns metadata about the data source.
+  DataSourceMetadata? getMetadata();
 }
 
 /// Concrete implementation of KiborService.
@@ -67,17 +71,36 @@ class KiborServiceImpl implements KiborService {
   ];
 
   DateTime? _lastUpdated;
+  DateTime? _lastVerifiedDate;
   final ApiCacheService _cacheService;
   final http.Client _httpClient;
   static const Duration _timeout = Duration(seconds: 10);
   static const String _cacheKey = 'kibor_rates';
   String _sourceUsed = 'placeholder_kibor';
 
+  late DataSourceMetadata _metadata;
+
   KiborServiceImpl({
     ApiCacheService? cacheService,
     http.Client? httpClient,
   })  : _cacheService = cacheService ?? ApiCacheService(),
-        _httpClient = httpClient ?? http.Client();
+        _httpClient = httpClient ?? http.Client() {
+    _initializeMetadata();
+  }
+
+  void _initializeMetadata() {
+    _metadata = DataSourceMetadata(
+      sourceName: 'State Bank of Pakistan',
+      sourceUrl: 'https://www.sbp.org.pk/m_mrt/kibor-rates.asp',
+      retrievedDate: DateTime.now(),
+      lastVerifiedDate: _lastVerifiedDate ?? DateTime.now(),
+      verificationStatus: VerificationStatus.verified,
+      isCached: false,
+      lastUpdatedTimestamp: _lastUpdated ?? DateTime.now(),
+      cacheDuration: const Duration(hours: 1),
+      notes: 'Official KIBOR (Karachi Interbank Offered Rate) from State Bank of Pakistan. Updated daily.',
+    );
+  }
 
   @override
   Future<LiveDataResult<List<KiborData>>> getKiborRates() async {
@@ -87,6 +110,7 @@ class KiborServiceImpl implements KiborService {
       if (cached != null && cached is List<KiborData>) {
         _lastUpdated = _cacheService.getCacheTimestamp(_cacheKey);
         _sourceUsed = 'cache_kibor';
+        _updateMetadata();
         return LiveDataResult.cached(
           data: cached,
           source: _sourceUsed,
@@ -98,8 +122,10 @@ class KiborServiceImpl implements KiborService {
       final rates = await _fetchFromLiveAPI();
       if (rates.isNotEmpty) {
         _lastUpdated = DateTime.now();
+        _lastVerifiedDate = DateTime.now();
         _sourceUsed = 'live_kibor_sbp';
         _cacheService.cache(_cacheKey, rates);
+        _updateMetadata();
         return LiveDataResult.success(
           data: rates,
           source: _sourceUsed,
@@ -116,6 +142,7 @@ class KiborServiceImpl implements KiborService {
       if (cachedFallback != null && cachedFallback is List<KiborData>) {
         _lastUpdated = _cacheService.getCacheTimestamp(_cacheKey);
         _sourceUsed = 'cache_kibor_fallback';
+        _updateMetadata();
         return LiveDataResult.cached(
           data: cachedFallback,
           source: _sourceUsed,
@@ -127,11 +154,30 @@ class KiborServiceImpl implements KiborService {
     // Ultimate fallback to placeholder data
     _lastUpdated = DateTime.now();
     _sourceUsed = 'placeholder_kibor';
+    _updateMetadata();
     _cacheService.cache(_cacheKey, _placeholderData);
     return LiveDataResult.success(
       data: _placeholderData,
       source: _sourceUsed,
       lastUpdated: _lastUpdated!.toIso8601String(),
+    );
+  }
+
+  void _updateMetadata() {
+    _metadata = DataSourceMetadata(
+      sourceName: _sourceUsed.startsWith('live') ? 'State Bank of Pakistan' : 'Cached KIBOR',
+      sourceUrl: 'https://www.sbp.org.pk/m_mrt/kibor-rates.asp',
+      retrievedDate: DateTime.now(),
+      lastVerifiedDate: _lastVerifiedDate ?? DateTime.now(),
+      verificationStatus: _sourceUsed.startsWith('placeholder')
+          ? VerificationStatus.placeholder
+          : _sourceUsed.startsWith('cache')
+              ? VerificationStatus.cached
+              : VerificationStatus.verified,
+      isCached: _sourceUsed.contains('cache'),
+      lastUpdatedTimestamp: _lastUpdated ?? DateTime.now(),
+      cacheDuration: const Duration(hours: 1),
+      notes: 'Official KIBOR (Karachi Interbank Offered Rate) from State Bank of Pakistan. Updated daily.',
     );
   }
 
@@ -260,11 +306,17 @@ class KiborServiceImpl implements KiborService {
   }
 
   @override
-  Future<LiveDataResult<List<KiborData>>> refresh() => getKiborRates();
+  Future<LiveDataResult<List<KiborData>>> refresh() async {
+    _cacheService.invalidate(_cacheKey);
+    return getKiborRates();
+  }
 
   @override
   DateTime? getLastUpdated() => _lastUpdated;
 
   @override
   String getSource() => _sourceUsed;
+
+  @override
+  DataSourceMetadata? getMetadata() => _metadata;
 }

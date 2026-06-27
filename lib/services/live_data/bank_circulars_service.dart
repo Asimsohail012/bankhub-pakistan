@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 import 'live_data_result.dart';
 import 'models.dart';
 import 'api_cache_service.dart';
+import 'metadata.dart';
 
 /// Abstract interface for bank circulars service.
 abstract class BankCircularsService {
@@ -24,6 +25,9 @@ abstract class BankCircularsService {
 
   /// Returns the data source identifier.
   String getSource();
+
+  /// Returns metadata about the data source.
+  DataSourceMetadata? getMetadata();
 }
 
 /// Concrete implementation of BankCircularsService.
@@ -59,17 +63,54 @@ class BankCircularsServiceImpl implements BankCircularsService {
   ];
 
   DateTime? _lastUpdated;
+  DateTime? _lastVerifiedDate;
   final ApiCacheService _cacheService;
   final http.Client _httpClient;
   static const Duration _timeout = Duration(seconds: 10);
   static const String _cacheKey = 'bank_circulars';
   String _sourceUsed = 'placeholder_bank_circulars';
 
+  late DataSourceMetadata _metadata;
+
   BankCircularsServiceImpl({
     ApiCacheService? cacheService,
     http.Client? httpClient,
   })  : _cacheService = cacheService ?? ApiCacheService(),
-        _httpClient = httpClient ?? http.Client();
+        _httpClient = httpClient ?? http.Client() {
+    _initializeMetadata();
+  }
+
+  void _initializeMetadata() {
+    _metadata = DataSourceMetadata(
+      sourceName: 'State Bank of Pakistan',
+      sourceUrl: 'https://www.sbp.org.pk/bprd/',
+      retrievedDate: DateTime.now(),
+      lastVerifiedDate: _lastVerifiedDate ?? DateTime.now(),
+      verificationStatus: VerificationStatus.verified,
+      isCached: false,
+      lastUpdatedTimestamp: _lastUpdated ?? DateTime.now(),
+      cacheDuration: const Duration(hours: 3),
+      notes: 'Bank regulatory circulars from State Bank of Pakistan.',
+    );
+  }
+
+  void _updateMetadata() {
+    _metadata = DataSourceMetadata(
+      sourceName: _sourceUsed.startsWith('live') ? 'State Bank of Pakistan' : 'Cached Circulars',
+      sourceUrl: 'https://www.sbp.org.pk/bprd/',
+      retrievedDate: DateTime.now(),
+      lastVerifiedDate: _lastVerifiedDate ?? DateTime.now(),
+      verificationStatus: _sourceUsed.startsWith('placeholder')
+          ? VerificationStatus.placeholder
+          : _sourceUsed.startsWith('cache')
+              ? VerificationStatus.cached
+              : VerificationStatus.verified,
+      isCached: _sourceUsed.contains('cache'),
+      lastUpdatedTimestamp: _lastUpdated ?? DateTime.now(),
+      cacheDuration: const Duration(hours: 3),
+      notes: 'Bank regulatory circulars from State Bank of Pakistan.',
+    );
+  }
 
   @override
   Future<LiveDataResult<List<BankCircular>>> getCirculars() async {
@@ -79,6 +120,7 @@ class BankCircularsServiceImpl implements BankCircularsService {
       if (cached != null && cached is List<BankCircular>) {
         _lastUpdated = _cacheService.getCacheTimestamp(_cacheKey);
         _sourceUsed = 'cache_bank_circulars';
+        _updateMetadata();
         return LiveDataResult.cached(
           data: cached,
           source: _sourceUsed,
@@ -90,8 +132,10 @@ class BankCircularsServiceImpl implements BankCircularsService {
       final circulars = await _fetchFromLiveAPI();
       if (circulars.isNotEmpty) {
         _lastUpdated = DateTime.now();
+        _lastVerifiedDate = DateTime.now();
         _sourceUsed = 'live_sbp_circulars';
         _cacheService.cache(_cacheKey, circulars);
+        _updateMetadata();
         return LiveDataResult.success(
           data: circulars,
           source: _sourceUsed,
@@ -108,6 +152,7 @@ class BankCircularsServiceImpl implements BankCircularsService {
       if (cachedFallback != null && cachedFallback is List<BankCircular>) {
         _lastUpdated = _cacheService.getCacheTimestamp(_cacheKey);
         _sourceUsed = 'cache_bank_circulars_fallback';
+        _updateMetadata();
         return LiveDataResult.cached(
           data: cachedFallback,
           source: _sourceUsed,
@@ -119,6 +164,7 @@ class BankCircularsServiceImpl implements BankCircularsService {
     // Ultimate fallback to placeholder data
     _lastUpdated = DateTime.now();
     _sourceUsed = 'placeholder_bank_circulars';
+    _updateMetadata();
     _cacheService.cache(_cacheKey, _placeholderData);
     return LiveDataResult.success(
       data: _placeholderData,
@@ -199,11 +245,17 @@ class BankCircularsServiceImpl implements BankCircularsService {
   }
 
   @override
-  Future<LiveDataResult<List<BankCircular>>> refresh() => getCirculars();
+  Future<LiveDataResult<List<BankCircular>>> refresh() async {
+    _cacheService.invalidate(_cacheKey);
+    return getCirculars();
+  }
 
   @override
   DateTime? getLastUpdated() => _lastUpdated;
 
   @override
   String getSource() => _sourceUsed;
+
+  @override
+  DataSourceMetadata? getMetadata() => _metadata;
 }
