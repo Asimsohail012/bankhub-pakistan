@@ -2,6 +2,14 @@ import 'package:flutter/material.dart';
 import '../services/user_preferences_service.dart';
 import '../utils/app_colors.dart';
 import '../widgets/section_header.dart';
+import 'about_screen.dart';
+import 'privacy_policy_screen.dart';
+import 'terms_conditions_screen.dart';
+import 'contact_us_screen.dart';
+import 'disclaimer_screen.dart';
+import 'version_info_screen.dart';
+import 'open_source_licenses_screen.dart';
+import 'user_support_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -139,46 +147,99 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: 'App information and links',
           ),
           const SizedBox(height: 20),
-          // App Version
+          // About BankHub Pakistan
           _SettingCard(
             icon: Icons.info_outline_rounded,
             color: Colors.blue,
-            title: 'App Version',
-            subtitle: 'Latest features and improvements',
-            trailing: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.blue.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Text(
-                '2.0.0',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.blue,
-                ),
-              ),
-            ),
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('You are on the latest version!')),
-              );
-            },
+            title: 'About BankHub',
+            subtitle: 'Learn about our mission and features',
+            trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutScreen())),
           ),
           const SizedBox(height: 12),
+          // Version Info
+          _SettingCard(
+            icon: Icons.code_outlined,
+            color: Colors.purple,
+            title: 'Version Info',
+            subtitle: 'Build information and release notes',
+            trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const VersionInfoScreen())),
+          ),
+          const SizedBox(height: 24),
+          const SectionHeader(
+            title: 'Policies & Legal',
+            subtitle: 'Important legal information',
+          ),
+          const SizedBox(height: 20),
           // Privacy Policy
           _SettingCard(
             icon: Icons.privacy_tip_outlined,
             color: Colors.red,
             title: 'Privacy Policy',
-            subtitle: 'Read our privacy and data protection policy',
+            subtitle: 'How we protect your data',
             trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Redirecting to privacy policy...')),
-              );
-            },
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen())),
+          ),
+          const SizedBox(height: 12),
+          // Terms & Conditions
+          _SettingCard(
+            icon: Icons.description_outlined,
+            color: Colors.orange,
+            title: 'Terms & Conditions',
+            subtitle: 'App usage terms',
+            trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TermsConditionsScreen())),
+          ),
+          const SizedBox(height: 12),
+          // Disclaimer
+          _SettingCard(
+            icon: Icons.warning_outlined,
+            color: Colors.amber,
+            title: 'Disclaimer',
+            subtitle: 'Important legal disclaimer',
+            trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DisclaimerScreen())),
+          ),
+          const SizedBox(height: 24),
+          const SectionHeader(
+            title: 'Support & Feedback',
+            subtitle: 'Help us improve',
+          ),
+          const SizedBox(height: 20),
+          // Support & Feedback
+          _SettingCard(
+            icon: Icons.help_outline_rounded,
+            color: Colors.teal,
+            title: 'Support & Feedback',
+            subtitle: 'Report issues, send feedback, request features',
+            trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UserSupportScreen())),
+          ),
+          const SizedBox(height: 12),
+          // Contact Us
+          _SettingCard(
+            icon: Icons.email_outlined,
+            color: Colors.green,
+            title: 'Contact Us',
+            subtitle: 'Get in touch with our team',
+            trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactUsScreen())),
+          ),
+          const SizedBox(height: 24),
+          const SectionHeader(
+            title: 'Open Source',
+            subtitle: 'Powered by amazing libraries',
+          ),
+          const SizedBox(height: 20),
+          // Open Source Licenses
+          _SettingCard(
+            icon: Icons.favorite_outline_rounded,
+            color: Colors.pink,
+            title: 'Open Source Licenses',
+            subtitle: 'Third-party libraries and licenses',
+            trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const OpenSourceLicensesScreen())),
           ),
         ],
       ),
