@@ -231,12 +231,6 @@ class MoneyTransferServiceImpl implements MoneyTransferService {
       
       // Extract table rows or list items containing MTO information
       // Pattern: Look for organization names, registration status
-      final orgPattern = RegExp(
-        r'<tr[^>]*>.*?<td[^>]*>([^<]+)</td>.*?</tr>',
-        dotAll: true,
-        caseSensitive: false,
-      );
-
       // For now, return structured data if any match found
       // In production, would implement proper HTML parsing
       

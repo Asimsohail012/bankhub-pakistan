@@ -265,7 +265,7 @@ class InternshipProgramsServiceImpl implements InternshipProgramsService {
           (p) =>
               p.title.toLowerCase().contains(lower) ||
               p.bank.toLowerCase().contains(lower) ||
-              (p.description?.toLowerCase().contains(lower) ?? false),
+              p.description.toLowerCase().contains(lower),
         )
         .toList();
 

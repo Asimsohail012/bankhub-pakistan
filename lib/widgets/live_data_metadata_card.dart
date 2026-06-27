@@ -9,11 +9,11 @@ class LiveDataMetadataCard extends StatelessWidget {
   final bool isLoading;
 
   const LiveDataMetadataCard({
-    Key? key,
+    super.key,
     required this.metadata,
     this.onRefresh,
     this.isLoading = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +109,7 @@ class LiveDataMetadataCard extends StatelessWidget {
       width: 32,
       height: 32,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         shape: BoxShape.circle,
       ),
       child: Center(
@@ -158,15 +158,15 @@ class LiveDataMetadataCard extends StatelessWidget {
   Color _getBackgroundColor() {
     switch (metadata.verificationStatus) {
       case VerificationStatus.verified:
-        return Colors.green.withOpacity(0.05);
+        return Colors.green.withValues(alpha: 0.05);
       case VerificationStatus.cached:
-        return Colors.amber.withOpacity(0.05);
+        return Colors.amber.withValues(alpha: 0.05);
       case VerificationStatus.placeholder:
-        return Colors.orange.withOpacity(0.05);
+        return Colors.orange.withValues(alpha: 0.05);
       case VerificationStatus.pending:
-        return Colors.blue.withOpacity(0.05);
+        return Colors.blue.withValues(alpha: 0.05);
       case VerificationStatus.unverified:
-        return Colors.red.withOpacity(0.05);
+        return Colors.red.withValues(alpha: 0.05);
     }
   }
 
@@ -174,15 +174,15 @@ class LiveDataMetadataCard extends StatelessWidget {
   Color _getBorderColor() {
     switch (metadata.verificationStatus) {
       case VerificationStatus.verified:
-        return Colors.green.withOpacity(0.3);
+        return Colors.green.withValues(alpha: 0.3);
       case VerificationStatus.cached:
-        return Colors.amber.withOpacity(0.3);
+        return Colors.amber.withValues(alpha: 0.3);
       case VerificationStatus.placeholder:
-        return Colors.orange.withOpacity(0.3);
+        return Colors.orange.withValues(alpha: 0.3);
       case VerificationStatus.pending:
-        return Colors.blue.withOpacity(0.3);
+        return Colors.blue.withValues(alpha: 0.3);
       case VerificationStatus.unverified:
-        return Colors.red.withOpacity(0.3);
+        return Colors.red.withValues(alpha: 0.3);
     }
   }
 
@@ -215,9 +215,9 @@ class CompactMetadataIndicator extends StatelessWidget {
   final DataSourceMetadata metadata;
 
   const CompactMetadataIndicator({
-    Key? key,
+    super.key,
     required this.metadata,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -226,10 +226,10 @@ class CompactMetadataIndicator extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: _getColor().withOpacity(0.15),
+          color: _getColor().withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color: _getColor().withOpacity(0.5),
+            color: _getColor().withValues(alpha: 0.5),
             width: 0.5,
           ),
         ),
