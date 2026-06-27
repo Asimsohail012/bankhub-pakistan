@@ -25,16 +25,25 @@ Color bankCategoryLogoColor(String category) {
 ///
 /// Loads the SVG asset and falls back to a coloured container with
 /// the bank's initials when the asset cannot be loaded.
+///
+/// Pass [heroTag] to wrap the container inside a [Hero] widget.
+/// Omit [heroTag] (the default) when the logo must NOT participate in a
+/// Hero animation – avoiding duplicate-Hero-tag errors when the same bank
+/// appears multiple times on screen.
 class BankLogo extends StatelessWidget {
   final BankModel bank;
   final double size;
   final double borderRadius;
+
+  /// When non-null the widget is wrapped in a [Hero] with this tag.
+  final Object? heroTag;
 
   const BankLogo({
     super.key,
     required this.bank,
     this.size = 52,
     this.borderRadius = 16,
+    this.heroTag,
   });
 
   String _initials() {
@@ -48,15 +57,16 @@ class BankLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bgColor = bankCategoryLogoColor(bank.category);
+    final padding = size * 0.18;
 
-    return Container(
+    final container = Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(borderRadius),
       ),
-      padding: const EdgeInsets.all(10),
+      padding: EdgeInsets.all(padding),
       child: SvgPicture.asset(
         bank.logoAsset,
         fit: BoxFit.contain,
@@ -68,6 +78,11 @@ class BankLogo extends StatelessWidget {
         ),
       ),
     );
+
+    if (heroTag != null) {
+      return Hero(tag: heroTag!, child: container);
+    }
+    return container;
   }
 }
 

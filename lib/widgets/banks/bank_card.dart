@@ -4,18 +4,24 @@ import '../../models/bank_model.dart';
 import 'bank_category_chip.dart';
 import 'bank_logo.dart';
 
-/// Premium bank card for the Bank Directory list.
+/// Premium bank card for the Bank Directory list and Search Results.
 ///
 /// Displays: logo, name, category chip, optional badges, rating,
 /// favourite icon and a forward arrow.
 ///
-/// Uses a [Hero] with tag `'bank-logo-list-${bank.id}'` for the logo so
-/// it does not conflict with any other Hero tags in the app.
+/// Set [showSwiftCode] to true (e.g., in search results) to display the
+/// bank's SWIFT code below the category chips.
+///
+/// The [BankLogo] inside this card does NOT use a Hero tag so it is safe
+/// to show multiple cards for the same bank simultaneously.
 class BankCard extends StatelessWidget {
   final BankModel bank;
   final bool isFavorite;
   final VoidCallback onTap;
   final VoidCallback? onFavoriteTap;
+
+  /// When true a SWIFT code row is shown below the category chips.
+  final bool showSwiftCode;
 
   const BankCard({
     super.key,
@@ -23,6 +29,7 @@ class BankCard extends StatelessWidget {
     required this.onTap,
     this.isFavorite = false,
     this.onFavoriteTap,
+    this.showSwiftCode = false,
   });
 
   @override
@@ -110,6 +117,26 @@ class BankCard extends StatelessWidget {
                           ),
                       ],
                     ),
+                    // Optional SWIFT code row (used in search results)
+                    if (showSwiftCode && bank.swiftCode.isNotEmpty) ...[
+                      const SizedBox(height: 5),
+                      Row(
+                        children: [
+                          Icon(Icons.code_rounded,
+                              size: 12, color: Colors.grey.shade500),
+                          const SizedBox(width: 4),
+                          Text(
+                            'SWIFT: ${bank.swiftCode}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 8),
                     // Rating row
                     Row(

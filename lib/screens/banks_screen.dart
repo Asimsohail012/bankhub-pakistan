@@ -6,7 +6,6 @@ import '../models/bank_model.dart';
 import '../screens/bank_detail_screen.dart';
 import '../services/bank_persistence_service.dart';
 import '../widgets/banks/bank_card.dart';
-import '../widgets/banks/bank_category_chip.dart';
 import '../widgets/banks/bank_logo.dart';
 import '../widgets/premium_unlock_sheet.dart';
 
@@ -160,7 +159,7 @@ class _BanksScreenState extends State<BanksScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               scrollDirection: Axis.horizontal,
               itemCount: categories.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              separatorBuilder: (_, _) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final category = categories[index];
                 final isSelected = selectedCategory == category;
@@ -326,7 +325,7 @@ class _HorizontalBankStrip extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               scrollDirection: Axis.horizontal,
               itemCount: banks.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 10),
+              separatorBuilder: (_, _) => const SizedBox(width: 10),
               itemBuilder: (context, index) {
                 final bank = banks[index];
                 return _CompactBankChip(

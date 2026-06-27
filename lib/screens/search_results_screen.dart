@@ -5,7 +5,7 @@ import '../data/news_data.dart';
 import '../models/bank_model.dart';
 import '../models/news_item.dart';
 import '../screens/bank_detail_screen.dart';
-import '../widgets/bank_list_tile.dart';
+import '../widgets/banks/bank_card.dart';
 import '../widgets/news_card.dart';
 import '../widgets/section_header.dart';
 
@@ -152,8 +152,9 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                     separatorBuilder: (context, index) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final bank = _bankResults[index];
-                      return BankListTile(
+                      return BankCard(
                         bank: bank,
+                        showSwiftCode: true,
                         onTap: () {
                           Navigator.push(
                             context,

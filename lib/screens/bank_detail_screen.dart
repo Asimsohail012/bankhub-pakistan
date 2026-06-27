@@ -1,11 +1,11 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/bank_model.dart';
 import '../services/bank_persistence_service.dart';
+import '../widgets/banks/bank_detail_header.dart';
 import '../widgets/premium_unlock_sheet.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class BankDetailScreen extends StatefulWidget {
   final BankModel bank;
@@ -141,105 +141,17 @@ class _BankDetailScreenState extends State<BankDetailScreen> {
       appBar: AppBar(
         title: Text(bank.name),
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(
-              _isFavorite ? Icons.star : Icons.star_border,
-              color: _isFavorite ? Colors.amber : Colors.white,
-            ),
-            onPressed: _toggleFavorite,
-          ),
-        ],
+        scrolledUnderElevation: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF1E3A8A),
-                    Color(0xFF2563EB),
-                  ],
-                ),
-              ),
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Hero(
-                        tag: 'bank-logo-${bank.id}',
-                        child: Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: Colors.white..withValues(alpha: 46),
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          padding: const EdgeInsets.all(12),
-                          child: SvgPicture.asset(
-                            bank.logoAsset,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              bank.name,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              bank.slogan,
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: [
-                                Chip(
-                                  backgroundColor: Colors.white..withValues(alpha: 46),
-                                  label: Text(
-                                    bank.category,
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                                Chip(
-                                  backgroundColor: Colors.white..withValues(alpha: 46),
-                                  label: Text(
-                                    '⭐ ${bank.rating.toStringAsFixed(1)}',
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            BankDetailHeader(
+              bank: bank,
+              isFavorite: _isFavorite,
+              onFavoriteTap: _toggleFavorite,
             ),
             const SizedBox(height: 24),
             const Text(
