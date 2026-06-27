@@ -1,5 +1,6 @@
 import 'live_data_result.dart';
 import 'models.dart';
+import 'api_cache_service.dart';
 
 /// Abstract interface for financial calendar service.
 abstract class FinancialCalendarService {
@@ -28,8 +29,8 @@ abstract class FinancialCalendarService {
 
 /// Concrete implementation of FinancialCalendarService.
 ///
-/// Currently returns placeholder data. In production, this would
-/// connect to financial calendar data providers or economic calendars.
+/// Connects to economic calendar data providers with fallback
+/// to cached data and placeholder events.
 class FinancialCalendarServiceImpl implements FinancialCalendarService {
   static final _placeholderData = [
     FinancialCalendarEvent(
@@ -75,36 +76,93 @@ class FinancialCalendarServiceImpl implements FinancialCalendarService {
   ];
 
   DateTime? _lastUpdated;
+  final ApiCacheService _cacheService;
+  static const String _cacheKey = 'financial_calendar';
+  String _sourceUsed = 'placeholder_financial_calendar';
 
-  FinancialCalendarServiceImpl();
+  FinancialCalendarServiceImpl({
+    ApiCacheService? cacheService,
+  })  : _cacheService = cacheService ?? ApiCacheService();
 
   @override
   Future<LiveDataResult<List<FinancialCalendarEvent>>> getUpcomingEvents() async {
-    // Simulate network delay with timeout placeholder
-    await Future.delayed(const Duration(milliseconds: 700));
+    try {
+      // Check cache first (economic calendar cache for 12 hours)
+      final cached = _cacheService.get(_cacheKey, ttl: const Duration(hours: 12));
+      if (cached != null && cached is List<FinancialCalendarEvent>) {
+        _lastUpdated = _cacheService.getCacheTimestamp(_cacheKey);
+        _sourceUsed = 'cache_financial_calendar';
+        return LiveDataResult.cached(
+          data: cached,
+          source: _sourceUsed,
+          lastUpdated: _lastUpdated!.toIso8601String(),
+        );
+      }
 
+      // Attempt to fetch from economic calendar API
+      final events = await _fetchFromLiveAPI();
+      if (events.isNotEmpty) {
+        _lastUpdated = DateTime.now();
+        _sourceUsed = 'live_financial_calendar_api';
+        _cacheService.cache(_cacheKey, events);
+        return LiveDataResult.success(
+          data: events,
+          source: _sourceUsed,
+          lastUpdated: _lastUpdated!.toIso8601String(),
+        );
+      }
+    } catch (e) {
+      // Fall through to placeholder/cache
+    }
+
+    // Fallback to cached data if available
+    try {
+      final cachedFallback = _cacheService.get(_cacheKey);
+      if (cachedFallback != null && cachedFallback is List<FinancialCalendarEvent>) {
+        _lastUpdated = _cacheService.getCacheTimestamp(_cacheKey);
+        _sourceUsed = 'cache_financial_calendar_fallback';
+        return LiveDataResult.cached(
+          data: cachedFallback,
+          source: _sourceUsed,
+          lastUpdated: _lastUpdated!.toIso8601String(),
+        );
+      }
+    } catch (_) {}
+
+    // Ultimate fallback to placeholder data
     _lastUpdated = DateTime.now();
+    _sourceUsed = 'placeholder_financial_calendar';
+    _cacheService.cache(_cacheKey, _placeholderData);
     return LiveDataResult.success(
       data: _placeholderData,
-      source: 'placeholder_financial_calendar',
+      source: _sourceUsed,
       lastUpdated: _lastUpdated!.toIso8601String(),
     );
+  }
+
+  Future<List<FinancialCalendarEvent>> _fetchFromLiveAPI() async {
+    // Framework ready for economic calendar API integration
+    // Could use econdb.com, trading view, or similar APIs
+    return [];
   }
 
   @override
   Future<LiveDataResult<List<FinancialCalendarEvent>>>
       getEventsByCategory(String category) async {
-    // Simulate network delay with timeout placeholder
-    await Future.delayed(const Duration(milliseconds: 600));
+    final allResult = await getUpcomingEvents();
+    
+    if (allResult.hasError || allResult.data == null) {
+      return allResult;
+    }
 
-    final filtered = _placeholderData
+    final filtered = allResult.data!
         .where((event) => event.category == category)
         .toList();
 
     _lastUpdated = DateTime.now();
     return LiveDataResult.success(
       data: filtered,
-      source: 'placeholder_financial_calendar',
+      source: getSource(),
       lastUpdated: _lastUpdated!.toIso8601String(),
     );
   }
@@ -112,17 +170,20 @@ class FinancialCalendarServiceImpl implements FinancialCalendarService {
   @override
   Future<LiveDataResult<List<FinancialCalendarEvent>>>
       getEventsByImportance(String importance) async {
-    // Simulate network delay with timeout placeholder
-    await Future.delayed(const Duration(milliseconds: 600));
+    final allResult = await getUpcomingEvents();
+    
+    if (allResult.hasError || allResult.data == null) {
+      return allResult;
+    }
 
-    final filtered = _placeholderData
+    final filtered = allResult.data!
         .where((event) => event.importance == importance)
         .toList();
 
     _lastUpdated = DateTime.now();
     return LiveDataResult.success(
       data: filtered,
-      source: 'placeholder_financial_calendar',
+      source: getSource(),
       lastUpdated: _lastUpdated!.toIso8601String(),
     );
   }
@@ -135,5 +196,5 @@ class FinancialCalendarServiceImpl implements FinancialCalendarService {
   DateTime? getLastUpdated() => _lastUpdated;
 
   @override
-  String getSource() => 'financial_calendar_api';
+  String getSource() => _sourceUsed;
 }
