@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../widgets/section_header.dart';
 import '../widgets/pro_dashboard_card.dart';
 import 'profile_edit_screen.dart';
+import 'settings_screen.dart';
+import 'notification_center_screen.dart';
 import '../widgets/premium_unlock_sheet.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -113,10 +115,28 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 14),
           ProDashboardCard(
             title: 'Notifications',
-            subtitle: 'Manage alerts and app notifications',
+            subtitle: 'View and manage alerts',
             icon: Icons.notifications,
             color: const Color(0xFF0D6EFD),
-            onTap: () => showPremiumUnlockSheet(context),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NotificationCenterScreen()),
+              );
+            },
+          ),
+          const SizedBox(height: 14),
+          ProDashboardCard(
+            title: 'Settings',
+            subtitle: 'Preferences and app configuration',
+            icon: Icons.settings,
+            color: const Color(0xFF6B7280),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              );
+            },
           ),
           const SizedBox(height: 14),
           ProDashboardCard(

@@ -5,9 +5,8 @@ import '../data/news_data.dart';
 import '../models/bank_model.dart';
 import '../models/news_item.dart';
 import '../screens/bank_detail_screen.dart';
-import '../widgets/banks/bank_card.dart';
-import '../widgets/news_card.dart';
 import '../widgets/section_header.dart';
+import '../widgets/error_dialog.dart';
 
 class SearchResultsScreen extends StatefulWidget {
   final String initialQuery;
@@ -40,26 +39,20 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
 
   List<BankModel> get _bankResults {
     final query = _query.toLowerCase();
-    if (query.isEmpty) {
-      return [];
-    }
-    return pakistanBanks.where((bank) {
-      return bank.name.toLowerCase().contains(query) ||
-          bank.slogan.toLowerCase().contains(query) ||
-          bank.website.toLowerCase().contains(query) ||
-          bank.internetBanking.toLowerCase().contains(query);
-    }).toList();
+    if (query.isEmpty) return [];
+    return pakistanBanks.where((bank) =>
+      bank.name.toLowerCase().contains(query) ||
+      bank.slogan.toLowerCase().contains(query) ||
+      bank.website.toLowerCase().contains(query) ||
+      bank.internetBanking.toLowerCase().contains(query)).toList();
   }
 
   List<NewsItem> get _newsResults {
     final query = _query.toLowerCase();
-    if (query.isEmpty) {
-      return [];
-    }
-    return bankingNews.where((item) {
-      return item.title.toLowerCase().contains(query) ||
-          item.summary.toLowerCase().contains(query);
-    }).toList();
+    if (query.isEmpty) return [];
+    return bankingNews.where((item) =>
+      item.title.toLowerCase().contains(query) ||
+      item.summary.toLowerCase().contains(query)).toList();
   }
 
   @override
@@ -152,9 +145,11 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                     separatorBuilder: (context, index) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final bank = _bankResults[index];
-                      return BankCard(
-                        bank: bank,
-                        showSwiftCode: true,
+                      return _SearchResultTile(
+                        icon: Icons.account_balance,
+                        title: bank.name,
+                        subtitle: bank.slogan,
+                        color: Colors.blue,
                         onTap: () {
                           Navigator.push(
                             context,
@@ -169,21 +164,10 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                 ),
               ] else ...[
                 const SizedBox(height: 20),
-                Center(
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.search_off,
-                        color: Colors.grey.shade400,
-                        size: 60,
-                      ),
-                      const SizedBox(height: 14),
-                      const Text(
-                        'No matching banks found.',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
+                EmptyStateWidget(
+                  icon: Icons.search_off,
+                  title: 'No banks found',
+                  subtitle: 'Try searching with different keywords',
                 ),
               ],
               if (_newsResults.isNotEmpty) ...[
@@ -198,12 +182,89 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                     itemCount: _newsResults.length,
                     separatorBuilder: (context, index) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
-                      return NewsCard(newsItem: _newsResults[index]);
+                      final item = _newsResults[index];
+                      return _SearchResultTile(
+                        icon: Icons.newspaper,
+                        title: item.title,
+                        subtitle: item.summary,
+                        color: Colors.indigo,
+                      );
                     },
                   ),
                 ),
               ],
             ]
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SearchResultTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color color;
+  final VoidCallback? onTap;
+
+  const _SearchResultTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade200, width: 1),
+          borderRadius: BorderRadius.circular(12),
+          color: Colors.white,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

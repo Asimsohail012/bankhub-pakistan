@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../utils/app_animations.dart';
 import 'banking_news_screen.dart';
 import 'banks_screen.dart';
 import 'compare_banks_screen.dart';
@@ -40,13 +41,21 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _pages,
+      body: AnimatedSwitcher(
+        duration: AppAnimations.transitionDuration,
+        transitionBuilder: (child, animation) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        child: IndexedStack(
+          key: ValueKey<int>(_selectedIndex),
+          index: _selectedIndex,
+          children: _pages,
+        ),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onTabSelected,
+        animationDuration: const Duration(milliseconds: 400),
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),

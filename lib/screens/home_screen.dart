@@ -8,6 +8,8 @@ import '../models/news_item.dart';
 import '../providers/dashboard_data_provider.dart';
 import '../utils/app_colors.dart';
 import '../widgets/premium_unlock_sheet.dart';
+import '../widgets/premium_shimmer_loader.dart';
+import '../widgets/premium_search_bar.dart';
 import '../widgets/section_header.dart';
 import 'ai_assistant_screen.dart';
 import 'banks_screen.dart';
@@ -78,7 +80,11 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Row(
                 children: [
-                  _RoundIconButton(icon: Icons.menu_rounded, onTap: () => _scaffoldKey.currentState?.openDrawer()),
+                  _RoundIconButton(
+                    icon: Icons.menu_rounded,
+                    onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                    tooltip: 'Open menu',
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -89,33 +95,26 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  _RoundIconButton(icon: Icons.notifications_none_rounded, onTap: _showPremium),
+                  _RoundIconButton(
+                    icon: Icons.notifications_none_rounded,
+                    onTap: _showPremium,
+                    tooltip: 'View notifications',
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
-              TextField(
+              PremiumSearchBar(
                 controller: _searchController,
                 onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(
-                  hintText: 'Search banks, IBAN, cards, branches...',
-                  prefixIcon: const Icon(Icons.search_rounded),
-                  suffixIcon: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(onPressed: () {}, icon: const Icon(Icons.mic_none_rounded)),
-                      if (_searchController.text.isNotEmpty)
-                        IconButton(onPressed: () => setState(() => _searchController.clear()), icon: const Icon(Icons.close_rounded)),
-                    ],
-                  ),
-                ),
+                onVoicePressed: _showPremium,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   gradient: AppColors.premiumGradient,
                   borderRadius: BorderRadius.circular(28),
-                  boxShadow: [BoxShadow(color: AppColors.secondary.withValues(alpha: 0.2), blurRadius: 24, offset: const Offset(0, 14))],
+                  boxShadow: [BoxShadow(color: AppColors.secondary.withValues(alpha: 0.25), blurRadius: 28, offset: const Offset(0, 12))],
                 ),
                 child: Row(
                   children: [
@@ -123,19 +122,50 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(_greeting(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
-                          const SizedBox(height: 8),
-                          const Text('Good banking decisions start here.', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800)),
+                          Text(
+                            _greeting(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
                           const SizedBox(height: 10),
-                          Text(dateLabel, style: const TextStyle(color: Colors.white70)),
+                          const Text(
+                            'Good banking decisions start here.',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 26,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -0.5,
+                              height: 1.2,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            dateLabel,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ],
                       ),
                     ),
                     Container(
-                      width: 88,
-                      height: 88,
-                      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.16), borderRadius: BorderRadius.circular(22)),
-                      child: const Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 44),
+                      width: 92,
+                      height: 92,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.16),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          width: 1,
+                        ),
+                      ),
+                      child: const Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 48),
                     ),
                   ],
                 ),
@@ -337,16 +367,10 @@ class _HomeScreenState extends State<HomeScreen> {
           childAspectRatio: crossAxisCount == 4 ? 1.2 : 1.0,
           children: List.generate(
             4,
-            (index) => Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                color: Colors.grey.shade200,
-              ),
-              child: Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation(AppColors.primary),
-                ),
-              ),
+            (index) => PremiumShimmerLoader(
+              width: double.infinity,
+              height: double.infinity,
+              borderRadius: BorderRadius.circular(24),
             ),
           ),
         );
@@ -394,15 +418,31 @@ class _HomeScreenState extends State<HomeScreen> {
 class _RoundIconButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
+  final String? tooltip;
 
-  const _RoundIconButton({required this.icon, required this.onTap});
+  const _RoundIconButton({
+    required this.icon,
+    required this.onTap,
+    this.tooltip,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      shape: const CircleBorder(),
-      child: IconButton(onPressed: onTap, icon: Icon(icon, color: AppColors.primary)),
+    return Tooltip(
+      message: tooltip ?? '',
+      child: Material(
+        color: Colors.white,
+        shape: const CircleBorder(),
+        child: SizedBox(
+          width: 48,
+          height: 48,
+          child: IconButton(
+            onPressed: onTap,
+            icon: Icon(icon, color: AppColors.primary),
+            tooltip: tooltip ?? '',
+          ),
+        ),
+      ),
     );
   }
 }
